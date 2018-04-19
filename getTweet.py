@@ -23,7 +23,8 @@ class MyListener(StreamListener):
         try:
             with open('python.json', 'a') as f:
                 print(status.text)
-                f.write(data)
+                f.write(status.text)
+                f.flush()
                 return True
         except BaseException as e:
             print("Error on_data: %s" % str(e))
