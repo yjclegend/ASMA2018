@@ -44,9 +44,13 @@ class Deployer(object):
 		for instance in instances:
 			ids.append(instance['Instances'][0]['InstanceId'])
 		self.terminateInstance(ids)
-		
+
 	def terminateInstance(self, ids):
 		self.client.terminate_instances(InstanceIds=ids)
+
+
+	def playbook():
+		pass
 
 if __name__ == '__main__':
 	de = Deployer()

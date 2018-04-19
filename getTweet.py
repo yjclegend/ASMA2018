@@ -14,10 +14,15 @@ auth.set_access_token(access_token, access_secret)
  
 api = tweepy.API(auth)
 
+
+# public_tweets = api.home_timeline()
+# for tweet in public_tweets:
+#     print(tweet.text)
 class MyListener(StreamListener): 
     def on_status(self, status):
         try:
             with open('python.json', 'a') as f:
+                print(status.text)
                 f.write(data)
                 return True
         except BaseException as e:
@@ -28,5 +33,6 @@ class MyListener(StreamListener):
         print(status)
         return True
  
-twitter_stream = Stream(auth, MyListener())
-twitter_stream.filter(coordinates=[40.0160921, -105.2812196])
+myStreamListener = MyListener()
+myStream = tweepy.Stream(auth = api.auth, listener=MyListener())
+myStream.filter(track=['china'])
