@@ -4,8 +4,8 @@
   tasks:
     - name: Install Apache Server
       apt:
-        name:"{{ item }}"
+        name: "{{ item }}"
         state: latest
       with_items:
         - apache2
-        - vim
+        - git
