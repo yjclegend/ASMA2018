@@ -13,6 +13,7 @@ class Deployer(object):
 	def __init__(self, ):
 		super(Deployer, self).__init__()
 		self.initConnection()
+		self.instances = list()
 
 	def initConnection(self):
 		self.client = boto3.client(service_name='ec2',
@@ -25,6 +26,16 @@ class Deployer(object):
                     endpoint_url='https://nova.rc.nectar.org.au:8773/services/Cloud',
                     aws_access_key_id='d76c0dd861f346b0acb093220c421eb4',
                     aws_secret_access_key='d4acf02f362341b2ad66a7fdc43c14c6')
+
+	def updateInstanceInfo(self):
+		res = self.client.describe_instances()
+		print(res)
+		instances = res['Reservations']
+		for inst_info in instances:
+			core_info = instance['Instances'][0]
+			instance = dict()
+			instance["id"] = core_info['InstanceId']
+			instance['ip'] = core_info['']
 
 	def addInstance(self):
 		try:
@@ -41,14 +52,11 @@ class Deployer(object):
 				print('New instance {} has been created'.format(instance.id))
 		except ClientError as e:
 			print(e)
-	def showInstances(self):
-		response = self.client.describe_instances()
-		return response
 
 	def terminateAll(self):
 		ids = list()
 		res = self.showInstances()
-		instances = res['Reservations']
+		inst_data = res['Reservations']
 		for instance in instances:
 			ids.append(instance['Instances'][0]['InstanceId'])
 		self.terminateInstance(ids)
@@ -106,8 +114,7 @@ class Deployer(object):
 
 if __name__ == '__main__':
 	de = Deployer()
-	de.playbook()
+	de.updateInstanceInfo()
 	#de.terminateAll()
 	#de.addInstance()		
-	#de.showInstances()
-	#de.terminateInstance(['i-3e87513d'])
+	#de.playbook()
