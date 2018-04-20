@@ -1,4 +1,4 @@
-- hosts: demo
+- hosts: all
   sudo: yes
 
   tasks:
