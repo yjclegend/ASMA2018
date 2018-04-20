@@ -1,3 +1,4 @@
+import time
 import boto3
 from botocore.exceptions import ClientError
 
@@ -14,6 +15,8 @@ class Deployer(object):
 		super(Deployer, self).__init__()
 		self.initConnection()
 		self.instances = list()
+		self.volumes = list()
+		self.summaryCurrentStatus()
 
 	def initConnection(self):
 		self.client = boto3.client(service_name='ec2',
@@ -27,15 +30,36 @@ class Deployer(object):
                     aws_access_key_id='d76c0dd861f346b0acb093220c421eb4',
                     aws_secret_access_key='d4acf02f362341b2ad66a7fdc43c14c6')
 
+	def summaryCurrentStatus(self):
+		self.updateInstanceInfo()
+		self.updateVolumeInfo()
+		self.updateHostIni()
+
+	def updateHostIni(self):
+		#host_file = open('hosts.ini','w')
+		pass
+
+	def updateVolumeInfo(self):
+		response = self.client.describe_volumes()
+		volumes = response['Volumes']
+		for vol in volumes:
+			vol_info = dict()
+			vol_info['vol_id'] = vol['VolumeId']
+			vol_info['att'] = vol['Attachments']
+			self.volumes.append(vol_info)
+		print(self.volumes)
+
 	def updateInstanceInfo(self):
-		res = self.client.describe_instances()
-		print(res)
-		instances = res['Reservations']
-		for inst_info in instances:
-			core_info = instance['Instances'][0]
-			instance = dict()
-			instance["id"] = core_info['InstanceId']
-			instance['ip'] = core_info['']
+		response = self.client.describe_instances()
+		#print(res)
+		reservations = response['Reservations']
+		for reservation in reservations:
+			for instance in reservation['Instances']:
+				inst_info = dict()
+				inst_info["id"] = instance['InstanceId']
+				inst_info['ip'] = instance['PrivateIpAddress']
+				self.instances.append(inst_info)
+		print(self.instances)
 
 	def addInstance(self):
 		try:
@@ -50,16 +74,47 @@ class Deployer(object):
 	                    )
 			for instance in instances:
 				print('New instance {} has been created'.format(instance.id))
+				inst_info = dict()
+				inst_info['id'] = instance.id
+				inst_info['ip'] = instance.ip
+				self.instances.append(inst_info)
 		except ClientError as e:
 			print(e)
 
+	def createVolume(self):
+		volume = self.ec2.create_volume(
+			AvailabilityZone='melbourne-qh2',
+			Size=50,
+			)
+		print(volume)
+
+	def attachVolume(self, vol_id, in_id):
+		print(vol_id,in_id)
+		instance = self.ec2.Instance(in_id)
+		while instance.state['Name'] != 'running':
+			print('Instance {} is {}'.format(instance.id,instance.state))
+			time.sleep(5)
+			instance.update()
+
+		response = self.client.attach_volume(
+			Device='/dev/vdc',
+			InstanceId=in_id,
+			VolumeId=	vol_id
+			)
+		print(response)
+
+	def deployMaster(self):
+		self.master_id = self.instances[0]['id']
+		self.master_vol_id = self.volumes[0]['vol_id']
+		#self.createVolume()
+		self.attachVolume(self.master_vol_id, self.master_id)
+
 	def terminateAll(self):
 		ids = list()
-		res = self.showInstances()
-		inst_data = res['Reservations']
-		for instance in instances:
-			ids.append(instance['Instances'][0]['InstanceId'])
+		for instance in self.instances:
+			ids.append(instance['id'])
 		self.terminateInstance(ids)
+		self.instances = list()
 
 	def terminateInstance(self, ids):
 		self.client.terminate_instances(InstanceIds=ids)
@@ -114,7 +169,7 @@ class Deployer(object):
 
 if __name__ == '__main__':
 	de = Deployer()
-	de.updateInstanceInfo()
+	#de.deployMaster()
 	#de.terminateAll()
 	#de.addInstance()		
-	#de.playbook()
+	de.playbook()
