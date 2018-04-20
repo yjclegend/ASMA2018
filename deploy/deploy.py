@@ -1,5 +1,13 @@
 import boto3
 from botocore.exceptions import ClientError
+
+
+from collections import namedtuple
+from ansible.parsing.dataloader import DataLoader
+from ansible.vars.manager import VariableManager
+from ansible.inventory.manager import InventoryManager
+from ansible.executor.playbook_executor import PlaybookExecutor
+
 class Deployer(object):
 	"""docstring for deployer"""
 	def __init__(self, ):
@@ -49,11 +57,56 @@ class Deployer(object):
 		self.client.terminate_instances(InstanceIds=ids)
 
 
-	def playbook():
-		pass
+	def playbook(self):
+		Options = namedtuple('Options',[
+										'connection',
+										'remote_user',
+										'forks',
+										'become',
+										'become_user',
+										'become_method', 
+										'private_key_file',
+										'listhosts',
+										'listtasks',
+										'listtags',
+										'syntax',
+										'check',
+										'diff',
+										'module_path'])
+		loader = DataLoader()
+		options = Options(
+						connection='ssh',
+						remote_user='ubuntu',
+						forks=100,
+						become=True,
+						become_method='sudo',
+						become_user='root', 
+						private_key_file='huozhua.key',
+						listhosts=False,
+						listtasks=False,
+						listtags=False,
+						syntax=False,
+						check=False,
+						diff=False,
+						module_path='')
+		
+		inventory = InventoryManager(loader=loader, sources='hosts.ini')
+		variable_manager = VariableManager(loader=loader, inventory=inventory)
+
+		playbook_path = 'apache.yaml'
+
+
+		pbex = PlaybookExecutor(playbooks=[playbook_path],
+								inventory=inventory,
+								variable_manager=variable_manager,
+								loader=loader,
+								options=options,
+								passwords=dict())
+		result = pbex.run()
 
 if __name__ == '__main__':
 	de = Deployer()
+	de.playbook()
 	#de.terminateAll()
 	#de.addInstance()		
 	#de.showInstances()
