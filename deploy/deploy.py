@@ -76,7 +76,7 @@ class Deployer(object):
 				print('New instance {} has been created'.format(instance.id))
 				inst_info = dict()
 				inst_info['id'] = instance.id
-				inst_info['ip'] = instance.ip
+				#inst_info['ip'] = instance.ip
 				self.instances.append(inst_info)
 		except ClientError as e:
 			print(e)
