@@ -37,13 +37,26 @@ class MyListener(StreamListener):
         return True
 
 # australia = api.geo_search(query="australia", granularity="country")
-# place_id = australia[0].id
-# melbourne = api.geo_search(query="melbourne", granularity="city")
-# #print(melbourne[0])
+# # place_id = australia[0].id
+# #melbourne = api.geo_search(query="melbourne", granularity="city")
+# Box = australia[0].bounding_box
+# print(Box.coordinates)
+coordinates =  [[112.921114, -43.740482], 
+                [112.921114, -9.142176], 
+                [159.109219, -9.142176], 
+                [159.109219, -43.740482], 
+                [112.921114, -43.740482]]
 # center = melbourne[0].centroid
 # print(center)
-geo_code = str(145) + ',' + str(-37.5) + ',' + '2km'
-print(geo_code)
-tweets = api.search(geocode="38.376,-0.5,8km",lang='en',rpp=100)
-for tweet in tweets:
-    print(tweet.text)
+# geo_code = str(38.376) + ',' + str(-0.5) + ',' + '20km'
+# print(geo_code)
+# while True:
+#     try:
+#         tweets = api.search(geocode=geo_code,lang='en',rpp=100)
+#         for tweet in tweets:
+#             print(tweet.text)
+#     except Exception as e:
+#         print(e)
+
+twitter_stream = Stream(auth, MyListener())
+twitter_stream.filter(locations=[112.921114,-43.740482,159.109219,-9.142176])
