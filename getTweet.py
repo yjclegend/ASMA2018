@@ -25,7 +25,7 @@ class MyListener(StreamListener):
         try:
             with open('python.json', 'a') as f:
                 print(status.text)
-                f.write(status.text)
+                f.write(status.text.encode('utf-8'))
                 f.flush()
                 return True
         except BaseException as e:
