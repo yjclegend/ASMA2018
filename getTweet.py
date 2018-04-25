@@ -4,6 +4,7 @@ from tweepy import OAuthHandler
 from tweepy import Stream
 from tweepy.streaming import StreamListener
 import json
+import time
  
 consumer_key = '1az5VnYmc4oy0faljLdSxvrzC'
 consumer_secret = 'NrEluXS9IGzGVru23sajuVClBXW6dbtx4MMNNO7LnLbD2otgAm'
@@ -35,12 +36,14 @@ class MyListener(StreamListener):
         print(status)
         return True
 
-places = api.geo_search(query="AU", granularity="country")
-place_id = places[0].id
-
-tweets = api.search(q="place:%s" % place_id)
+# australia = api.geo_search(query="australia", granularity="country")
+# place_id = australia[0].id
+# melbourne = api.geo_search(query="melbourne", granularity="city")
+# #print(melbourne[0])
+# center = melbourne[0].centroid
+# print(center)
+geo_code = str(145) + ',' + str(-37.5) + ',' + '2km'
+print(geo_code)
+tweets = api.search(geocode="38.376,-0.5,8km",lang='en',rpp=100)
 for tweet in tweets:
     print(tweet.text)
-# myStreamListener = MyListener()
-# myStream = tweepy.Stream(auth = api.auth, listener=MyListener())
-# myStream.filter(track=['yesscotland'])
