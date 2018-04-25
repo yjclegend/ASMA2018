@@ -1,3 +1,4 @@
+# -*- coding: utf-8-*-
 import tweepy
 from tweepy import OAuthHandler
 from tweepy import Stream
@@ -33,7 +34,13 @@ class MyListener(StreamListener):
     def on_error(self, status):
         print(status)
         return True
- 
-myStreamListener = MyListener()
-myStream = tweepy.Stream(auth = api.auth, listener=MyListener())
-myStream.filter(track=['china'])
+
+places = api.geo_search(query="AU", granularity="country")
+place_id = places[0].id
+
+tweets = api.search(q="place:%s" % place_id)
+for tweet in tweets:
+    print(tweet.text)
+# myStreamListener = MyListener()
+# myStream = tweepy.Stream(auth = api.auth, listener=MyListener())
+# myStream.filter(track=['yesscotland'])
