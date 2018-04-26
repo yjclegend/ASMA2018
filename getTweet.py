@@ -3,6 +3,7 @@ import tweepy
 from tweepy import OAuthHandler
 from tweepy import Stream
 from tweepy.streaming import StreamListener
+import urllib.request
 import json
 import time
  
@@ -20,20 +21,24 @@ api = tweepy.API(auth)
 # public_tweets = api.home_timeline()
 # for tweet in public_tweets:
 #     print(tweet.text)
-class MyListener(StreamListener): 
+class MyListener(StreamListener):
     def on_status(self, status):
         try:
-            with open('python.json', 'a') as f:
-                print(status.text)
-                f.write(status.text.encode('utf-8'))
-                f.flush()
+            with open('text_coor.json', 'a') as f:
+                text = status.text
+                coor = status.coordinates
+                print('coor = ', coor)
+                if coor != None:
+                    data = {'text': text, 'coordinates': coor}
+                    f.write(str(data) + '\n')
+                    f.flush()
                 return True
         except BaseException as e:
             print("Error on_data: %s" % str(e))
         return True
  
     def on_error(self, status):
-        print(status)
+        print('on_error = ', status)
         return True
 
 # australia = api.geo_search(query="australia", granularity="country")
@@ -59,4 +64,8 @@ coordinates =  [[112.921114, -43.740482],
 #         print(e)
 
 twitter_stream = Stream(auth, MyListener())
+
 twitter_stream.filter(locations=[112.921114,-43.740482,159.109219,-9.142176])
+
+# db=MySQLdb.connect(host='localhost', user='XXX', passwd='XXX', db='twitter')
+# db.set_character_set('utf8')
