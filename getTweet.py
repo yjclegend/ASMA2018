@@ -27,10 +27,11 @@ class MyListener(StreamListener):
             with open('text_coor.json', 'a') as f:
                 text = status.text
                 coor = status.coordinates
-                print('coor = ', coor)
+                # print('coor = ', coor)
                 if coor != None:
-                    data = {'text': text, 'coordinates': coor}
-                    f.write(str(data) + '\n')
+                    data = {'text': text, 'coordinates': coor.get('coordinates')}
+                    # print('type = ', type(json.dumps(data)))
+                    f.write(json.dumps(data) + '\n')
                     f.flush()
                 return True
         except BaseException as e:
