@@ -6,6 +6,7 @@ from tweepy.streaming import StreamListener
 from urllib import request, parse
 import json
 import time
+import twitterKey as tKey
 
 class MyListener(StreamListener):
     def __init__(self, ):
@@ -49,10 +50,10 @@ class TweetHarvester(object):
     """docstring for TweetHarvester"""
     def __init__(self, ):
         super(TweetHarvester, self).__init__()
-        self.consumer_key = '1az5VnYmc4oy0faljLdSxvrzC'
-        self.consumer_secret = 'NrEluXS9IGzGVru23sajuVClBXW6dbtx4MMNNO7LnLbD2otgAm'
-        self.access_token = '833522486792777728-D99ckOM06s4VR4DG34YrODB2n9GQMs2'
-        self.access_secret = 'UvDk8grNKrDkCl37hTJbVABCPwo3yGxr3b1o8KNLzqAuz'
+        self.consumer_key = tKey.consumer_key1
+        self.consumer_secret = tKey.consumer_secret1
+        self.access_token = tKey.access_token1
+        self.access_secret = tKey.access_secret1
 
         
         self.initAPI()
