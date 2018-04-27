@@ -3,7 +3,7 @@ import tweepy
 from tweepy import OAuthHandler
 from tweepy import Stream
 from tweepy.streaming import StreamListener
-import urllib.request
+import urllib
 import json
 import time
  
@@ -25,10 +25,10 @@ class MyListener(StreamListener):
     def on_status(self, status):
         try:
             with open('text_coor.json', 'a') as f:
-                text = status.text
                 coor = status.coordinates
-                # print('coor = ', coor)
+                print('coor = ', coor)
                 if coor != None:
+                    text = status.text
                     data = {'text': text, 'coordinates': coor.get('coordinates')}
                     # print('type = ', type(json.dumps(data)))
                     f.write(json.dumps(data) + '\n')
@@ -70,3 +70,7 @@ twitter_stream.filter(locations=[112.921114,-43.740482,159.109219,-9.142176])
 
 # db=MySQLdb.connect(host='localhost', user='XXX', passwd='XXX', db='twitter')
 # db.set_character_set('utf8')
+
+# curl -X POST -H "Content-Type: application/json" admin:admin@127.0.0.1:5984/yjc -d '{"key":"value"}'
+
+header = {}
