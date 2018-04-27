@@ -3,24 +3,10 @@ import tweepy
 from tweepy import OAuthHandler
 from tweepy import Stream
 from tweepy.streaming import StreamListener
-import urllib
+from urllib import request, parse
 import json
 import time
- 
-consumer_key = '1az5VnYmc4oy0faljLdSxvrzC'
-consumer_secret = 'NrEluXS9IGzGVru23sajuVClBXW6dbtx4MMNNO7LnLbD2otgAm'
-access_token = '833522486792777728-D99ckOM06s4VR4DG34YrODB2n9GQMs2'
-access_secret = 'UvDk8grNKrDkCl37hTJbVABCPwo3yGxr3b1o8KNLzqAuz'
- 
-auth = OAuthHandler(consumer_key, consumer_secret)
-auth.set_access_token(access_token, access_secret)
- 
-api = tweepy.API(auth)
 
-
-# public_tweets = api.home_timeline()
-# for tweet in public_tweets:
-#     print(tweet.text)
 class MyListener(StreamListener):
     def on_status(self, status):
         try:
@@ -53,24 +39,44 @@ coordinates =  [[112.921114, -43.740482],
                 [159.109219, -43.740482], 
                 [112.921114, -43.740482]]
 # center = melbourne[0].centroid
-# print(center)
-# geo_code = str(38.376) + ',' + str(-0.5) + ',' + '20km'
-# print(geo_code)
-# while True:
-#     try:
-#         tweets = api.search(geocode=geo_code,lang='en',rpp=100)
-#         for tweet in tweets:
-#             print(tweet.text)
-#     except Exception as e:
-#         print(e)
 
-twitter_stream = Stream(auth, MyListener())
+class TweetHarvester(object):
+    """docstring for TweetHarvester"""
+    def __init__(self, ):
+        super(TweetHarvester, self).__init__()
+        self.consumer_key = '1az5VnYmc4oy0faljLdSxvrzC'
+        self.consumer_secret = 'NrEluXS9IGzGVru23sajuVClBXW6dbtx4MMNNO7LnLbD2otgAm'
+        self.access_token = '833522486792777728-D99ckOM06s4VR4DG34YrODB2n9GQMs2'
+        self.access_secret = 'UvDk8grNKrDkCl37hTJbVABCPwo3yGxr3b1o8KNLzqAuz'
 
-twitter_stream.filter(locations=[112.921114,-43.740482,159.109219,-9.142176])
+        self.db_url = 'http://115.146.86.21:5984/yjc'
+        self.user = 'admin'
+        self.password = 'admin'
+        self.initAPI()
 
-# db=MySQLdb.connect(host='localhost', user='XXX', passwd='XXX', db='twitter')
-# db.set_character_set('utf8')
+    def initAPI(self):
+        self.auth = OAuthHandler(self.consumer_key, self.consumer_secret)
+        self.auth.set_access_token(self.access_token, self.access_secret)
+        self.api = tweepy.API(self.auth)
+    
+    def startListener(self):
+        twitter_stream = Stream(self.auth, MyListener())
+        twitter_stream.filter(locations=[112.921114,-43.740482,159.109219,-9.142176])
 
-# curl -X POST -H "Content-Type: application/json" admin:admin@127.0.0.1:5984/yjc -d '{"key":"value"}'
+    def addDocument(self, data):
+        password_mgr = request.HTTPPasswordMgrWithDefaultRealm()
+        password_mgr.add_password(None, self.db_url, self.user, self.password)
+        handler = request.HTTPBasicAuthHandler(password_mgr)
+        opener = request.build_opener(handler)
+        request.install_opener(opener)
+        req =  request.Request(self.db_url, data=data, headers={'content-type': 'application/json'}) # this will make the method "POST"
+        #resp = opener.open(self.db_url, data=data, headers={'content-type': 'application/json'})
+        resp = request.urlopen(req)
+        print(resp.read())
 
-header = {}
+if __name__ == '__main__':
+    th = TweetHarvester()
+    #th.startListener()
+    data = {"key":"value"}
+    params = json.dumps(data).encode('utf-8')
+    print(params)
