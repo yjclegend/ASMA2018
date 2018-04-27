@@ -64,19 +64,17 @@ class TweetHarvester(object):
         twitter_stream.filter(locations=[112.921114,-43.740482,159.109219,-9.142176])
 
     def addDocument(self, data):
+        params = json.dumps(data).encode('utf-8')
         password_mgr = request.HTTPPasswordMgrWithDefaultRealm()
         password_mgr.add_password(None, self.db_url, self.user, self.password)
         handler = request.HTTPBasicAuthHandler(password_mgr)
         opener = request.build_opener(handler)
         request.install_opener(opener)
-        req =  request.Request(self.db_url, data=data, headers={'content-type': 'application/json'}) # this will make the method "POST"
+        req =  request.Request(self.db_url, data=params, headers={'content-type': 'application/json'}) # this will make the method "POST"
         #resp = opener.open(self.db_url, data=data, headers={'content-type': 'application/json'})
         resp = request.urlopen(req)
         print(resp.read())
 
 if __name__ == '__main__':
     th = TweetHarvester()
-    #th.startListener()
-    data = {"key":"value"}
-    params = json.dumps(data).encode('utf-8')
     print(params)
