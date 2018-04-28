@@ -1,12 +1,16 @@
+#  COMP90024 Cloud & Cluster Computing
+#  Assignment 2
+#  This file is to grab tweets from Twitter
+
+
 # -*- coding: utf-8-*-
 import tweepy
 from tweepy import OAuthHandler
 from tweepy import Stream
 from tweepy.streaming import StreamListener
-from urllib import request, parse
+from urllib import request
 import json
-import time
-import twitterKey_1 as tKey
+import twitterKey as tKey
 
 class MyListener(StreamListener):
     def __init__(self, ):
@@ -14,19 +18,39 @@ class MyListener(StreamListener):
         self.db_url = 'http://115.146.86.21:5984/yjc'
         self.user = 'admin'
         self.password = 'admin'
+        self.process_num = 4
+        self.process_id = tKey.process_id
     
     def on_status(self, status):
         try:
-            with open('text_coor.json', 'a') as f:
-                coor = status.coordinates
-                #print('coor = ', coor)
-                if coor != None:
-                    text = status.text
-                    data = {'text': text, 'coordinates': coor.get('coordinates')}
-                    #self.addDocument(data)
-                    f.write(json.dumps(data) + '\n')
-                    f.flush()
-                return True
+            coor = status.coordinates  # Coordinate of the tweet
+            if coor != None:
+                tweetTime = status.created_at  # Posting time of the tweet
+                second = tweetTime.second  # Seconds of the posting time
+                text = status.text  # Text of the tweet
+                data = {'text': text, 'coordinates': coor.get('coordinates')}
+                if second % self.process_num == self.process_id:
+                    self.addDocument(data)
+            return True
+
+            # --------------Test: write in file---------------------
+
+            # coor = status.coordinates
+            # if coor != None:
+            #     text = status.text
+            #     data = {'text': text, 'coordinates': coor.get('coordinates')}
+            #     tweetTime = status.created_at
+            #     second = tweetTime.second
+            #     fileID = second % self.process_num
+            #     docName = 'text_coor' + str(fileID) + '.json'
+            #     with open(docName, 'a') as f:
+            #         # f.write(str(fileID) + '@@@' + json.dumps(data) + '\n')
+            #         f.write(json.dumps(data) + '\n')
+            #         f.flush()
+            #     print('second = ', second)
+            #     print('fileID = ', fileID)
+            # return True
+
         except BaseException as e:
             print("Error on_data: %s" % str(e))
         return True
@@ -50,10 +74,10 @@ class TweetHarvester(object):
     """docstring for TweetHarvester"""
     def __init__(self, ):
         super(TweetHarvester, self).__init__()
-        self.consumer_key = tKey.consumer_key1
-        self.consumer_secret = tKey.consumer_secret1
-        self.access_token = tKey.access_token1
-        self.access_secret = tKey.access_secret1
+        self.consumer_key = tKey.consumer_key
+        self.consumer_secret = tKey.consumer_secret
+        self.access_token = tKey.access_token
+        self.access_secret = tKey.access_secret
 
         
         self.initAPI()

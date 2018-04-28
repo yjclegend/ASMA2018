@@ -1,9 +1,13 @@
+#  COMP90024 Cloud & Cluster Computing
+#  Assignment 2
+#  This file is to store the fourth key chain of Twitter API
 
 
 # key 4
-# consumer_key4 =
-# consumer_secret4 =
-# access_token4 =
-# access_secret4 =
+# consumer_key =
+# consumer_secret =
+# access_token =
+# access_secret =
 
-node_id = 4
+# process id
+process_id = 4
