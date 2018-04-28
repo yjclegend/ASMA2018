@@ -18,11 +18,11 @@ class MyListener(StreamListener):
         try:
             with open('text_coor.json', 'a') as f:
                 coor = status.coordinates
-                print('coor = ', coor)
+                #print('coor = ', coor)
                 if coor != None:
                     text = status.text
                     data = {'text': text, 'coordinates': coor.get('coordinates')}
-                    self.addDocument(data)
+                    #self.addDocument(data)
                     f.write(json.dumps(data) + '\n')
                     f.flush()
                 return True
@@ -64,7 +64,11 @@ class TweetHarvester(object):
     
     def startListener(self):
         twitter_stream = Stream(self.auth, MyListener())
-        twitter_stream.filter(locations=[112.921114,-43.740482,159.109219,-9.142176])
+        while True:
+            try:
+                twitter_stream.filter(locations=[112.921114,-43.740482,159.109219,-9.142176])
+            except Exception as e:
+                print(e)
 
 if __name__ == '__main__':
     th = TweetHarvester()
