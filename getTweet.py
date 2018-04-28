@@ -29,6 +29,7 @@ class MyListener(StreamListener):
             #     second = tweetTime.second  # Seconds of the posting time
             #     text = status.text  # Text of the tweet
             #     data = {'text': text, 'coordinates': coor.get('coordinates'), 'time': tweetTime}
+            #
             #     if second % self.process_num == self.process_id:
             #         self.addDocument(data)
             # return True
@@ -45,7 +46,7 @@ class MyListener(StreamListener):
                 docName = 'text_coor' + str(fileID) + '.json'
                 with open(docName, 'a') as f:
                     # f.write(str(fileID) + '@@@' + json.dumps(data) + '\n')
-                    f.write(json.dumps(data) + '\n')
+                    f.write(json.dumps(data, default=str).encode('utf-8') + '\n')
                     f.flush()
                 print('second = ', second)
                 print('fileID = ', fileID)
@@ -60,7 +61,7 @@ class MyListener(StreamListener):
         return True
 
     def addDocument(self, data):
-        params = json.dumps(data).encode('utf-8')
+        params = json.dumps(data, default=str).encode('utf-8')
         password_mgr = request.HTTPPasswordMgrWithDefaultRealm()
         password_mgr.add_password(None, self.db_url, self.user, self.password)
         handler = request.HTTPBasicAuthHandler(password_mgr)
