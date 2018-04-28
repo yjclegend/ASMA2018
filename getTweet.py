@@ -6,7 +6,7 @@ from tweepy.streaming import StreamListener
 from urllib import request, parse
 import json
 import time
-import twitterKey as tKey
+import twitterKey_1 as tKey
 
 class MyListener(StreamListener):
     def __init__(self, ):
