@@ -94,7 +94,7 @@
       #     dest: /home/ubuntu/harvester
       - name: put harvester config file to server
         copy:
-          src: ../twitterKey{{play_hosts.index(inventory_hostname)}}.py
+          src: ../twitterKey_{{play_hosts.index(inventory_hostname)}}.py
           dest: /home/ubuntu/harvester/twitterKey
 
 
