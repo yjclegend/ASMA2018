@@ -15,7 +15,7 @@ import twitterKey as tKey
 class MyListener(StreamListener):
     def __init__(self, ):
         super(MyListener, self).__init__()
-        self.db_url = 'http://115.146.86.21:5984/yjc'
+        self.db_url = 'http://127.0.0.1:5984/twitter'
         self.user = 'admin'
         self.password = 'admin'
         self.process_num = 4
@@ -23,34 +23,34 @@ class MyListener(StreamListener):
     
     def on_status(self, status):
         try:
-            # coor = status.coordinates  # Coordinate of the tweet
-            # if coor != None:
-            #     tweetTime = status.created_at  # Posting time of the tweet
-            #     second = tweetTime.second  # Seconds of the posting time
-            #     text = status.text  # Text of the tweet
-            #     data = {'text': text, 'coordinates': coor.get('coordinates'), 'time': tweetTime}
-            #
-            #     if second % self.process_num == self.process_id:
-            #         self.addDocument(data)
-            # return True
+            coor = status.coordinates  # Coordinate of the tweet
+            if coor != None:
+                tweetTime = status.created_at  # Posting time of the tweet
+                second = tweetTime.second  # Seconds of the posting time
+                text = status.text  # Text of the tweet
+                data = {'text': text, 'coordinates': coor.get('coordinates'), 'time': tweetTime}
+            
+                if second % self.process_num == self.process_id:
+                    self.addDocument(data)
+            return True
 
             # --------------Test: write in file---------------------
 
-            coor = status.coordinates
-            if coor != None:
-                text = status.text
-                tweetTime = status.created_at
-                data = {'text': text, 'coordinates': coor.get('coordinates'), 'time': tweetTime}
-                second = tweetTime.second
-                fileID = second % self.process_num
-                docName = 'text_coor' + str(fileID) + '.json'
-                with open(docName, 'a') as f:
-                    # f.write(str(fileID) + '@@@' + json.dumps(data) + '\n')
-                    f.write(json.dumps(data, default=str).encode('utf-8') + '\n')
-                    f.flush()
-                print('second = ', second)
-                print('fileID = ', fileID)
-            return True
+            # coor = status.coordinates
+            # if coor != None:
+            #     text = status.text
+            #     tweetTime = status.created_at
+            #     data = {'text': text, 'coordinates': coor.get('coordinates'), 'time': tweetTime}
+            #     second = tweetTime.second
+            #     fileID = second % self.process_num
+            #     docName = 'text_coor' + str(fileID) + '.json'
+            #     with open(docName, 'a') as f:
+            #         # f.write(str(fileID) + '@@@' + json.dumps(data) + '\n')
+            #         f.write(json.dumps(data, default=str).encode('utf-8') + '\n')
+            #         f.flush()
+            #     print('second = ', second)
+            #     print('fileID = ', fileID)
+            # return True
 
         except BaseException as e:
             print("Error on_data: %s" % str(e))
