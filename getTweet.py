@@ -29,7 +29,6 @@ class MyListener(StreamListener):
             #     second = tweetTime.second  # Seconds of the posting time
             #     text = status.text  # Text of the tweet
             #     data = {'text': text, 'coordinates': coor.get('coordinates'), 'time': tweetTime}
-            #
             #     if second % self.process_num == self.process_id:
             #         self.addDocument(data)
             # return True
@@ -45,8 +44,8 @@ class MyListener(StreamListener):
                 fileID = second % self.process_num
                 docName = 'text_coor' + str(fileID) + '.json'
                 with open(docName, 'a') as f:
-                    # f.write(str(fileID) + '@@@' + json.dumps(data) + '\n')
-                    f.write(json.dumps(data, default=str).encode('utf-8') + '\n')
+                    # f.write(str(fileID) + '@@@' + json.dumps(data, default=str) + '\n')
+                    f.write(json.dumps(data, default=str) + '\n')
                     f.flush()
                 print('second = ', second)
                 print('fileID = ', fileID)

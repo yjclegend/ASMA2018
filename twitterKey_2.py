@@ -10,4 +10,4 @@ access_token = '986821001068527616-5DrJPirExdMDEo3ENZTbQGd2nq5s7Xh'
 access_secret = 'EKWG50yUCS9JflmcBUoBCwEzOXaeCRhv6sDXA3MmOdQ8R'
 
 # process id
-process_id = 2
+process_id = 1
