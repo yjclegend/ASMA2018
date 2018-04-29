@@ -1,3 +1,4 @@
+import os
 import time
 import boto3
 from botocore.exceptions import ClientError
@@ -15,8 +16,8 @@ class Deployer(object):
 		super(Deployer, self).__init__()
 		self.initConnection()
 		self.instances = list()
-		self.volumes = list()
-		self.summaryCurrentStatus()
+		self.volumes = list()			#volumes 
+
 
 	def initConnection(self):
 		self.client = boto3.client(service_name='ec2',
@@ -33,11 +34,20 @@ class Deployer(object):
 	def summaryCurrentStatus(self):
 		self.updateInstanceInfo()
 		self.updateVolumeInfo()
-		self.updateHostIni()
 
 	def updateHostIni(self):
-		#host_file = open('hosts.ini','w')
-		pass
+		host_file = open('hosts.ini','w')
+		host_file.write("[master]\n")
+		#write master ip
+		host_file.write(self.instances[0]['ip'])
+		host_file.write('\n')
+
+		#write slave ip
+		host_file.write("[slave]\n")
+		for i in range(1,4):
+			host_file.write(self.instances[i]['ip'])
+			host_file.write('\n')
+
 
 	def updateVolumeInfo(self):
 		response = self.client.describe_volumes()
@@ -63,6 +73,7 @@ class Deployer(object):
 
 	def addInstance(self):
 		try:
+			print("spawning instances")
 			instances = self.ec2.create_instances(
 						ImageId='ami-00003837',
 	                    KeyName='jiachuany',
@@ -75,49 +86,64 @@ class Deployer(object):
 			for instance in instances:
 				print('New instance {} has been created'.format(instance.id))
 				inst_info = dict()
-				inst_info['id'] = instance.id
-				#inst_info['ip'] = instance.ip
+				in_id = instance.id
+				while True:
+					if instance.state['Name'] == 'running' and len(instance.private_ip_address) > 0:
+						inst_info['id'] = instance.id
+						inst_info['ip'] = instance.private_ip_address
+						break
+					print("instances initializing")
+					time.sleep(5)
+					instance = self.ec2.Instance(in_id)
 				self.instances.append(inst_info)
+			self.updateHostIni()
 		except ClientError as e:
 			print(e)
+
+	def addVolume(self):
+		print("attach volumes")
+		for instance in self.instances:
+			in_id = instance['id']
+			volume = self.createVolume()
+			print("attach volume " + volume.id + " to " + in_id)
+			self.attachVolume(volume.id, in_id)
 
 	def createVolume(self):
 		volume = self.ec2.create_volume(
 			AvailabilityZone='melbourne-qh2',
 			Size=50,
 			)
-		print(volume)
+		return volume
 
 	def attachVolume(self, vol_id, in_id):
 		print(vol_id,in_id)
 		instance = self.ec2.Instance(in_id)
-		while instance.state['Name'] != 'running':
-			print('Instance {} is {}'.format(instance.id,instance.state))
-			time.sleep(5)
-			instance.update()
-
-		response = self.client.attach_volume(
-			Device='/dev/vdc',
-			InstanceId=in_id,
-			VolumeId=	vol_id
-			)
-		print(response)
-
-	def deployMaster(self):
-		self.master_id = self.instances[0]['id']
-		self.master_vol_id = self.volumes[0]['vol_id']
-		#self.createVolume()
-		self.attachVolume(self.master_vol_id, self.master_id)
+		while True:
+			try:
+				response = self.client.attach_volume(
+					Device='/dev/vdc',
+					InstanceId=in_id,
+					VolumeId=vol_id
+					)
+				print(response)
+				break
+			except Exception as e:
+				print(e)
+				time.sleep(3)
 
 	def terminateAll(self):
 		ids = list()
 		for instance in self.instances:
 			ids.append(instance['id'])
 		self.terminateInstance(ids)
+		time.sleep(10)
 		self.instances = list()
+		for vol in self.volumes:
+			self.client.delete_volume(VolumeId=vol["vol_id"])
 
 	def terminateInstance(self, ids):
-		self.client.terminate_instances(InstanceIds=ids)
+		if len(ids) > 0:
+			self.client.terminate_instances(InstanceIds=ids)
 
 
 	def playbook(self):
@@ -168,8 +194,12 @@ class Deployer(object):
 		result = pbex.run()
 
 if __name__ == '__main__':
+	os.environ["ANSIBLE_HOST_KEY_CHECKING"] = 'False'
 	de = Deployer()
-	#de.deployMaster()
+	#de.summaryCurrentStatus()
+	# remove all instances and volumes
 	#de.terminateAll()
-	#de.addInstance()		
+	# add new instances and attach volumes
+	#de.addInstance()
+	#de.addVolume()
 	de.playbook()

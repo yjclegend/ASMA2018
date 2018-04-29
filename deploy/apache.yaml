@@ -2,21 +2,142 @@
   sudo: yes
 
   tasks:
-    - name: Copy members key to Authorized_keys
-      copy: 
-        src: authorized_keys
-        dest: .ssh/authorized_keys
-    - name: prepare install CouchDB
-      lineinfile:
-        dest: /etc/apt/sources.list
-        line: deb http://apache.bintray.com/couchdb-deb xenial main
-        insertafter: EOF
-    - name: install CouchDB
-      environment: 
-          DEBIAN_FRONTEND: noninteractive
-      apt:
-        name: couchdb
-        force: yes
-        allow_unauthenticated: yes
+# node configurations
+#     - name: Copy members key to Authorized_keys
+#       copy: 
+#         src: authorized_keys
+#         dest: .ssh/authorized_keys
+#     - name: Create directory for database
+#       file:
+#         path: /home/ubuntu/database
+#         state: directory
+#     - name: fomat the volume
+#       filesystem:
+#         fstype: ext4
+#         dev: /dev/vdb
+#     - name: Mount volume to ~/database
+#       mount:
+#         path: /home/ubuntu/database
+#         src: /dev/vdb
+#         fstype: ext4
+#         state: mounted
 
+# #Couchdb configurations
+#     - name: prepare install CouchDB
+#       lineinfile:
+#         dest: /etc/apt/sources.list
+#         line: deb http://apache.bintray.com/couchdb-deb xenial main
+#         insertafter: EOF
+#     - name: install CouchDB
+#       environment: 
+#           DEBIAN_FRONTEND: noninteractive
+#       apt:
+#         name: couchdb
+#         update_cache: yes
+#         force: yes
+#         allow_unauthenticated: yes  
+#     - name: change CouchDB node name
+#       lineinfile:
+#         path: /opt/couchdb/etc/vm.args
+#         regexp: '^-name '
+#         line: '-name couchdb@{{inventory_hostname}}'
     
+#     - name: change couchdb storage directory
+#       lineinfile:
+#         path: /opt/couchdb/etc/default.ini
+#         regexp: '^database_dir ='
+#         line: 'database_dir = /home/ubuntu/database/couchdb'
+    
+#     - name: change couchdb view index directory
+#       lineinfile:
+#         path: /opt/couchdb/etc/default.ini
+#         regexp: '^view_index_dir ='
+#         line: 'view_index_dir = /home/ubuntu/database/couchdb'
+    
+#     - name: bind chttpd to 0.0.0.0
+#       uri:
+#         url: http://127.0.0.1:5984/_cluster_setup
+#         method: POST
+#         body: '{"action": "enable_cluster", "bind_address":"0.0.0.0", "username": "admin", "password":"admin", "node_count":"4"}'
+#         headers:
+#           Content-Type: "application/json"
+#         status_code: 201
+
+#     - name: move couchdb storage to mounted volume
+#       command: cp /var/lib/couchdb /home/ubuntu/database -R
+    
+#     - name: chage owner of the couchdb from root to CouchDB
+#       file:
+#         recurse: yes
+#         path: /home/ubuntu/database/couchdb
+#         owner: couchdb
+#         group: couchdb
+
+#     - name: restart couchdb
+#       command: /etc/init.d/couchdb restart
+
+#harvester configurations
+      # - name: install pip3
+      #   apt: 
+      #     name: python3-pip
+      # - name: install tweepy
+      #   pip:
+      #     name: tweepy
+      #     executable: pip3
+      # - name: make directory for harvester source code
+      #   file:
+      #     path: /home/ubuntu/harvester
+      #     state: directory
+      # - name: put harvester source code to server
+      #   copy:
+      #     src: ../getTweet.py
+      #     dest: /home/ubuntu/harvester
+      - name: put harvester config file to server
+        copy:
+          src: ../twitterKey{{play_hosts.index(inventory_hostname)}}.py
+          dest: /home/ubuntu/harvester/twitterKey
+
+
+# - hosts: master
+#   sudo: yes
+
+#   tasks:
+#     - name: enable_cluster for all nodes
+#       uri:
+#         url: http://127.0.0.1:5984/_cluster_setup
+#         method: POST
+#         user: admin
+#         password: admin
+#         force_basic_auth: yes
+#         headers:
+#           Content-Type: 'application/json'
+#         body: '{"action": "enable_cluster", "bind_address":"0.0.0.0", "username": "admin", "password":"admin", "port": 15984, "node_count": "4", "remote_node": "{{item}}", "remote_current_user": "admin", "remote_current_password": "admin" }'
+#         status_code: 201
+#         body_format: json
+#       with_items: "{{groups['all']}}"
+
+#     - name: add node to cluster
+#       uri:
+#         url: http://127.0.0.1:5984/_cluster_setup
+#         method: POST
+#         user: admin
+#         password: admin
+#         force_basic_auth: yes
+#         headers:
+#           Content-Type: 'application/json'
+#         body: '{"action": "add_node", "host":"{{item}}", "port": "5984", "username": "admin", "password":"admin"}'
+#         status_code: 201
+#         body_format: json
+#       with_items: "{{ groups['all'] }}"
+
+#     - name: fininsh cluster
+#       uri:
+#         url: http://127.0.0.1:5984/_cluster_setup
+#         method: POST
+#         user: admin
+#         password: admin
+#         force_basic_auth: yes
+#         headers:
+#           Content-Type: 'application/json'
+#         body: '{"action": "finish_cluster"}'
+#         status_code: 201
