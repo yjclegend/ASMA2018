@@ -21,6 +21,20 @@ class MyListener(StreamListener):
         self.password = 'admin'
         self.process_num = 4
         self.process_id = tKey.process_id
+        self.configLogger()
+
+    def configLogger(self):
+        self.logger = logging.getLogger(__name__)
+        self.logger.setLevel(logging.INFO)
+        handler = logging.FileHandler('harvest.log')
+        handler.setLevel(logging.INFO)
+        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        handler.setFormatter(formatter)
+
+        # add the handlers to the logger
+        self.logger.addHandler(handler)
+
+
     
     def on_status(self, status):
         try:
@@ -32,6 +46,7 @@ class MyListener(StreamListener):
                 data = {'text': text, 'coordinates': coor.get('coordinates'), 'time': tweetTime}
             
                 if second % self.process_num == self.process_id:
+                    self.logger.info(status.id)
                     self.addDocument(data)
             return True
 
