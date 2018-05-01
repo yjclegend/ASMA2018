@@ -1,10 +1,11 @@
-import React, {Component} from "react";
+import React from "react";
+import { Container, Row, Col } from 'reactstrap';
 import MyNav from "./components/Header/MyNav"
 import Map from "./components/SentimentOne/Map"
 import 'bootstrap/dist/css/bootstrap.css'
 import './App.css'
 
-class PageOne extends Component {
+class SentimentOne extends React.Component {
     render(){
         return (
             <div class = "container-fluid">
@@ -28,4 +29,4 @@ class PageOne extends Component {
         )
     }
 }
-export default PageOne;
+export default SentimentOne;
