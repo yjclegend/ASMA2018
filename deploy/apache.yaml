@@ -95,13 +95,15 @@
       - name: put harvester config file to server
         copy:
           src: ../twitterKey_{{play_hosts.index(inventory_hostname)}}.py
-          dest: /home/ubuntu/harvester/twitterKey
+          dest: /home/ubuntu/harvester/twitterKey.py
+      # - name: run harvester
+      #   command: nohup python3 /home/ubuntu/harvester/getTweet.py &
 
 
-# - hosts: master
-#   sudo: yes
+- hosts: master
+  sudo: yes
 
-#   tasks:
+  tasks:
 #     - name: enable_cluster for all nodes
 #       uri:
 #         url: http://127.0.0.1:5984/_cluster_setup
@@ -141,3 +143,11 @@
 #           Content-Type: 'application/json'
 #         body: '{"action": "finish_cluster"}'
 #         status_code: 201
+      # - name: create twitter database
+      #   uri:
+      #     url: http://127.0.0.1:5984/twitter
+      #     method: PUT
+      #     user: admin
+      #     password: admin
+      #     force_basic_auth: yes
+      #     status_code: 202
