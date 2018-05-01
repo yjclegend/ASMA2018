@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import MyNav from "./components/Header/MyNav"
+import MyNav1 from "./components/Header/MyNav"
 import MyBody from "./components/Body/MyBody"
 import './App.css';
 import 'bootstrap/dist/css/bootstrap.css'
@@ -9,7 +9,7 @@ class App extends Component {
     return (
       <div class = "container-fluid">
         <div className='Nav'>
-          <MyNav />
+          <MyNav1 />
         </div>
         <div>
           <MyBody />
