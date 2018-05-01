@@ -84,6 +84,7 @@ class MyListener(StreamListener):
 
     def addDocument(self, data):
         params = json.dumps(data, default=str).encode('utf-8')
+        self.logger.info(params)
         password_mgr = request.HTTPPasswordMgrWithDefaultRealm()
         password_mgr.add_password(None, self.db_url, self.user, self.password)
         handler = request.HTTPBasicAuthHandler(password_mgr)
