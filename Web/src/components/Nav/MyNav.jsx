@@ -1,13 +1,19 @@
 import React from 'react';
 import { NavItem, NavLink,Nav,Navbar } from 'reactstrap';
 import { BrowserRouter as Router,Route, Link } from 'react-router-dom';
-import Sentimentone from "../../components/Sentiment/SentimentOne";
+import SentimentOne from "../../components/Sentiment/SentimentOne";
+import SentimentTwo from "../../components/Sentiment/SentimentTwo"
 import MyBody from "../Home/MyBody";
 import "./MyNav.css";
 
 const PageOne = () => (
   <div className = "container-fluid" >
-      <Sentimentone/>
+    <SentimentOne/>
+  </div>
+)
+const PageTwo = () => (
+  <div className = 'container-fluid'>
+    <SentimentTwo/>
   </div>
 )
 
@@ -31,7 +37,7 @@ class MyNav extends React.Component {
                 <NavLink to="/PageOne"tag={Link} >Analysis One</NavLink>
               </NavItem>
               <NavItem className='NavItem'>
-                <NavLink  >Analysis Two</NavLink>
+                <NavLink to="/PageTwo"tag={Link} >Analysis Two</NavLink>
               </NavItem>
             </Nav>
           </div>
@@ -39,6 +45,7 @@ class MyNav extends React.Component {
         <div>
           <Route path="/" exact component={Home} />
           <Route path="/PageOne" component={PageOne} />
+          <Route path="/PageTwo" component={PageTwo} />
         </div>
       </div>
     );
