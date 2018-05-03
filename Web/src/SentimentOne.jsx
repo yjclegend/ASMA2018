@@ -1,31 +1,24 @@
 import React from "react";
 import { Container, Row, Col } from 'reactstrap';
-import MyNav from "./components/Header/MyNav"
 import Map from "./components/SentimentOne/Map"
 import 'bootstrap/dist/css/bootstrap.css'
-import './App.css'
 
 class SentimentOne extends React.Component {
     render(){
         return (
-            <div class = "container-fluid">
-                <div className = 'Nav'>
-                    <MyNav/>
-                </div>
                 <div>
                     <Container>
                         <Row>
-                            <Col> 
-                                <Map/>
+                            <Col md="8"> 
+                                <Map />
                             </Col>
                             <Col>
-                            put the explaination of the data
+                                <p>Put the map here</p>
                             </Col>
                          </Row>
                     </Container>
 
                 </div>
-            </div>
         )
     }
 }

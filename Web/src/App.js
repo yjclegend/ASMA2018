@@ -1,20 +1,18 @@
 import React, { Component } from 'react';
-import MyNav1 from "./components/Header/MyNav"
-import MyBody from "./components/Body/MyBody"
+import { BrowserRouter as Router } from 'react-router-dom';
 import './App.css';
-import 'bootstrap/dist/css/bootstrap.css'
+import 'bootstrap/dist/css/bootstrap.css';
+import MyNav from './components/Header/MyNav';
+
 
 class App extends Component {
   render() {
     return (
-      <div class = "container-fluid">
-        <div className='Nav'>
-          <MyNav1 />
-        </div>
+      <Router>
         <div>
-          <MyBody />
+          <MyNav />
         </div>
-      </div>
+      </Router>  
     );
   }
 }

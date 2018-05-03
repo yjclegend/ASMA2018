@@ -5,7 +5,7 @@ class BodyRight extends Component {
     render(){
         return (
             <div>
-                <img  src = {earthMap}/>
+                <img  src = {earthMap} alt = "map"/>
             </div>
 
         );

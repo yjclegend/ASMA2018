@@ -1,7 +1,6 @@
 .NavBar {
-  background-color: transparent;
+  background-color: lightgray;
   opacity: 0.5;
-  position: fixed;
   height: 100px;
   width: 100%;
   z-index: 1;
@@ -9,6 +8,6 @@
   margin-bottom: 50px; }
   .NavBar .NavItem {
     font-weight: bold;
-    font-size: 50;
+    font-size: 22px;
     color: black;
     opacity: 1; }
