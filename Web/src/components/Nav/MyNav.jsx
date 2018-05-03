@@ -1,8 +1,8 @@
 import React from 'react';
 import { NavItem, NavLink,Nav,Navbar } from 'reactstrap';
 import { BrowserRouter as Router,Route, Link } from 'react-router-dom';
-import Sentimentone from "../../SentimentOne";
-import MyBody from "../Body/MyBody";
+import Sentimentone from "../../components/Sentiment/SentimentOne";
+import MyBody from "../Home/MyBody";
 import "./MyNav.css";
 
 const PageOne = () => (
