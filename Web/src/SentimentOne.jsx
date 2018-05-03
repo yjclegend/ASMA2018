@@ -2,7 +2,6 @@ import React from "react";
 import { Container, Row, Col } from 'reactstrap';
 import Map from "./components/SentimentOne/Map"
 import 'bootstrap/dist/css/bootstrap.css'
-import './App.css'
 
 class SentimentOne extends React.Component {
     render(){
@@ -10,11 +9,11 @@ class SentimentOne extends React.Component {
                 <div>
                     <Container>
                         <Row>
-                            <Col> 
-                                <Map/>
+                            <Col md="8"> 
+                                <Map />
                             </Col>
                             <Col>
-                            put the explaination of the data
+                                <p>Put the map here</p>
                             </Col>
                          </Row>
                     </Container>
