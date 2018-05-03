@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { BrowserRouter as Router } from 'react-router-dom';
 import './App.css';
 import 'bootstrap/dist/css/bootstrap.css';
-import MyNav from './components/Header/MyNav';
+import MyNav from './components/Nav/MyNav';
 
 
 class App extends Component {
@@ -13,6 +13,7 @@ class App extends Component {
           <MyNav />
         </div>
       </Router>  
+    
     );
   }
 }

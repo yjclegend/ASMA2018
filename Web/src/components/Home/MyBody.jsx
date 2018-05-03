@@ -1,7 +1,6 @@
 import React from 'react';
-import BodyLeft from "./BodyLeft"
-import BodyRight from "./BodyRight"
 import { Container, Row, Col } from 'reactstrap';
+import earthMap from "../../assets/img/map.png"
 import "./MyBody.css";
 
 export default class MyBody extends React.Component {
@@ -10,11 +9,11 @@ export default class MyBody extends React.Component {
       <div className = "body">  
       <Container>
         <Row>
-          <Col> 
-            <BodyLeft/>
+          <Col md="8"> 
+          <img  src = {earthMap} alt = "map" height = "100%"/>
           </Col>
           <Col>
-            <BodyRight/>
+          <p> This is for COMP90024</p>
           </Col>
         </Row>
       </Container>
