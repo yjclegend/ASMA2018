@@ -38,16 +38,22 @@ class MyListener(StreamListener):
     
     def on_status(self, status):
         try:
-            coor = status.coordinates  # Coordinate of the tweet
-            if coor != None:
-                tweetTime = status.created_at  # Posting time of the tweet
-                second = tweetTime.second  # Seconds of the posting time
-                text = status.text  # Text of the tweet
-                data = {'text': text, 'coordinates': coor.get('coordinates'), 'time': tweetTime}
+            tweetTime = status.created_at  # Posting time of the tweet
+            second = tweetTime.second  # Seconds of the posting time
+            if second % self.process_num == self.process_id:
+                data = dict()
+                place = status.place
+                data['text'] = status.text  # Text of the tweet
+                data['time'] = tweetTime
+                data['placename'] = place.name
+                data['box'] = place.bounding_box.coordinates
             
-                if second % self.process_num == self.process_id:
-                    self.logger.info(status.id)
-                    self.addDocument(data)
+                coor = status.coordinates  # Coordinate of the tweet
+                if coor != None:
+                    data['coordinates'] = coor.get('coordinates')
+                # params = json.dumps(data, default=str).encode('utf-8')
+                # self.logger.info(params)
+                self.addDocument(data)
             return True
 
             # --------------Test: write in file---------------------
@@ -69,7 +75,7 @@ class MyListener(StreamListener):
             # return True
 
         except BaseException as e:
-            print("Error on_data: %s" % str(e))
+            self.logger.info("Error on_data: %s" % str(e))
         return True
  
     def on_error(self, status):
@@ -78,6 +84,7 @@ class MyListener(StreamListener):
 
     def addDocument(self, data):
         params = json.dumps(data, default=str).encode('utf-8')
+        self.logger.info(params)
         password_mgr = request.HTTPPasswordMgrWithDefaultRealm()
         password_mgr.add_password(None, self.db_url, self.user, self.password)
         handler = request.HTTPBasicAuthHandler(password_mgr)
