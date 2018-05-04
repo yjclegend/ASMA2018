@@ -1,0 +1,4 @@
+Access Token	986821001068527616-5DrJPirExdMDEo3ENZTbQGd2nq5s7Xh
+Access Token Secret	EKWG50yUCS9JflmcBUoBCwEzOXaeCRhv6sDXA3MmOdQ8R
+Consumer Key (API Key)	ViMKVl9Kj4OenOZtIDS7E8etN
+Consumer Secret (API Secret)	cUmmKZ3orZckNOryOaoWMdQuLbCp9zJTKhNQTSyHPsIX3Pnu00
