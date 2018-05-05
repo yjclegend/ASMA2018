@@ -40,16 +40,16 @@
          
         // map.data.loadGeoJson(
             // 'https://storage.googleapis.com/mapsdevsite/json/google.json');
-        map.data.loadGeoJson('SA3_GEO.json');
-        // map.data.setStyle(function(feature) {
-        //   var ascii = feature.getProperty('ascii');
-        //   var color = ascii > 91 ? 'red' : 'blue';
-        //   return {
-        //     fillColor: color,
-        //     strokeWeight: 1
-        //   };
-        // });
+        map.data.loadGeoJson('tar.json');
+        map.data.setStyle(function(feature) {
+          var color = feature.getProperty('color');
+          return {
+            fillColor: color,
+            strokeWeight: 1
+          };
+        });
         map.data.addListener('mouseover', function(event) {
+          var text = event.feature.getProperty('GCC')
           document.getElementById('info-box').textContent =
               event.feature.getProperty('GCC_NAME16');
         });
