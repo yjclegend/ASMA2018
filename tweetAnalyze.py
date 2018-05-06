@@ -166,8 +166,8 @@ class TweetAnalyze(object):
 
 if __name__ == '__main__':
     ta = TweetAnalyze()
-    keywords = ["marvel","avengers","infinity war","infinity stone","iron man","tony stark","robert downey jr.","captain","steve rogers","chris evans","winter soldier","hulk","bruce banner","edward norton","thor","loki","tom hiddleston","ant-man","paul rudd","doctor strange","guardians of the galaxy","chris pratt","dark aste","groot","spider-man","peter parker","ultron","black panther","wakanda","deadpool","wade wilson"]
-    keywords = ["gay","marriage equality","equalmarriage","letusmarry","rainbowdirection","same-sex couple","same-sex marriage","lgbt","queer","lesbian","straight","bisexual","transgender"]
+    # keywords = ["marvel","avengers","infinity war","infinity stone","iron man","tony stark","robert downey jr.","captain","steve rogers","chris evans","winter soldier","hulk","bruce banner","edward norton","thor","loki","tom hiddleston","ant-man","paul rudd","doctor strange","guardians of the galaxy","chris pratt","dark aste","groot","spider-man","peter parker","ultron","black panther","wakanda","deadpool","wade wilson"]
+    # keywords = ["gay","marriage equality","equalmarriage","letusmarry","rainbowdirection","same-sex couple","same-sex marriage","lgbt","queer","lesbian","straight","bisexual","transgender"]
     keywords = ['trump']
     ta.scenario2(keywords)
     #data = ta.getDataInCity('melbourne')
