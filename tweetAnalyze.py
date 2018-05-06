@@ -70,8 +70,9 @@ class TweetAnalyze(object):
         filtered = list()
         for t in data:
             for keyword in keywords:
-                if keyword in t['value']['text']:
+                if keyword in t['value']['text'].lower():
                     filtered.append(t)
+                    print(t['value']['text'].encode('utf-8'))
         return filtered
 
     def partitionByCoor(self, data):
@@ -165,7 +166,9 @@ class TweetAnalyze(object):
 
 if __name__ == '__main__':
     ta = TweetAnalyze()
-    keywords = ['food','meal']
+    keywords = ["marvel","avengers","infinity war","infinity stone","iron man","tony stark","robert downey jr.","captain","steve rogers","chris evans","winter soldier","hulk","bruce banner","edward norton","thor","loki","tom hiddleston","ant-man","paul rudd","doctor strange","guardians of the galaxy","chris pratt","dark aste","groot","spider-man","peter parker","ultron","black panther","wakanda","deadpool","wade wilson"]
+    keywords = ["gay","marriage equality","equalmarriage","letusmarry","rainbowdirection","same-sex couple","same-sex marriage","lgbt","queer","lesbian","straight","bisexual","transgender"]
+    keywords = ['trump']
     ta.scenario2(keywords)
     #data = ta.getDataInCity('melbourne')
     
