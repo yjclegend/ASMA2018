@@ -1,7 +1,7 @@
 import shapefile
 from json import dumps
 # read the shapefile
-reader = shapefile.Reader("GCCSA_2016_AUST.shp")
+reader = shapefile.Reader("SA4_2016_AUST.shp")
 fields = reader.fields[1:]
 field_names = [field[0] for field in fields]
 buffer = []
@@ -12,7 +12,7 @@ for sr in reader.shapeRecords():
     geometry=geom, properties=atr)) 
 
 # write the GeoJSON file
-geojson = open("GCCSA_2016_AUST.json", "w")
+geojson = open("SA4_2016_AUST.json", "w")
 geojson.write(dumps({"type": "FeatureCollection",\
 "features": buffer}, indent=2) + "\n")
 geojson.close()
