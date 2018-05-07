@@ -67,6 +67,8 @@ class TweetAnalyze(object):
     #input: text json 
     #output: text json has key words count; support rate
     def filterKeyword(self, data, keywords):
+        if len(keywords) == 0:
+            return data
         filtered = list()
         for t in data:
             for keyword in keywords:
@@ -77,18 +79,16 @@ class TweetAnalyze(object):
 
     def partitionByCoor(self, data):
         part = dict()
-        locations = list()
-        self.loadGeo('genjson/SA3_GEO.json')
+        self.loadGeo('geojson/SA3_GEO.json')
         self.buildPolygons('SA3_CODE16')
         for t in data:
             coor = t['value']['coordinates']
-            locations.append({'lng': coor[0],'lat': coor[1]})
             point = Point(coor[0], coor[1])
             code = self.pointInPoly(point)
             if code not in part:
                 part[code] = list()
             part[code].append(t)
-        return part, locations
+        return part
 
     def buildPolygons(self, level):
         features = self.geojson['features']
@@ -99,8 +99,8 @@ class TweetAnalyze(object):
                 self.polygons[code] = shape(feature['geometry'])
 
     def pointInPoly(self, point):
-        for code, polygon in self.polygons:
-            if polygons.contains(point):
+        for code in self.polygons:
+            if self.polygons[code].contains(point):
                 return code
 
     
@@ -155,24 +155,19 @@ class TweetAnalyze(object):
     def scenario2(self, keywords):
         data = self.getDataInCity('melbourne_coor')
         print(len(data))
-        filtered = self.filterKeyword(data, keywords)
-        print(len(filtered))
-        # part, locations = self.partionsByCoor(filtered)
+        bak = open('bak.json', 'w')
+        bak.write(json.dumps(data))
+        # part = self.partitionByCoor(data)
         # conclusions = dict()
         # for code, datalist in part:
         #     senti = self.sentiment(datalist)
         #     conclusions[code] = senti
-        # return conclusions
+        # tar = open('conclusions.json','w')
+        # tar.write(json.dumps(conclusions, indent=2))
 
 if __name__ == '__main__':
     ta = TweetAnalyze()
-    # keywords = ["marvel","avengers","infinity war","infinity stone","iron man","tony stark","robert downey jr.","captain","steve rogers","chris evans","winter soldier","hulk","bruce banner","edward norton","thor","loki","tom hiddleston","ant-man","paul rudd","doctor strange","guardians of the galaxy","chris pratt","dark aste","groot","spider-man","peter parker","ultron","black panther","wakanda","deadpool","wade wilson"]
-    # keywords = ["gay","marriage equality","equalmarriage","letusmarry","rainbowdirection","same-sex couple","same-sex marriage","lgbt","queer","lesbian","straight","bisexual","transgender"]
-    keywords = ['trump']
+    keywords = list()
     ta.scenario2(keywords)
-    #data = ta.getDataInCity('melbourne')
     
-    #ta.sentiment(data)
-
-    #ta.geoProperty('geojson/GCC_GEO.json' ,'geojson/GCC_POPULATION.json', 'gcc_code16', 'erp_p_tot_cnt')
     

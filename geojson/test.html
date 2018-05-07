@@ -2,92 +2,304 @@
 <html>
   <head>
     <title>Simple Map</title>
-    <meta name="viewport" content="initial-scale=1.0">
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no"">
     <meta charset="utf-8">
     <style>
       /* Always set the map height explicitly to define the size of the div
        * element that contains the map. */
-      #map {
-        height: 100%;
-      }
-      /* Optional: Makes the sample page fill the window. */
-      html, body {
-        height: 100%;
-        margin: 0;
-        padding: 0;
-      }
-      #info-box {
+      html, body, #map { height: 100%; margin: 0; padding: 0; overflow: hidden; }
+        .nicebox {
+          position: absolute;
+          text-align: center;
+          font-family: "Roboto", "Arial", sans-serif;
+          font-size: 13px;
+          z-index: 5;
+          box-shadow: 0 4px 6px -4px #333;
+          padding: 5px 10px;
+          background: rgb(255,255,255);
+          background: linear-gradient(to bottom,rgba(255,255,255,1) 0%,rgba(245,245,245,1) 100%);
+          border: rgb(229, 229, 229) 1px solid;
+        }
+        #controls {
+          top: 10px;
+          left: 110px;
+          width: 360px;
+          height: 45px;
+        }
+        #data-box {
+          top: 10px;
+          left: 500px;
+          height: 45px;
+          line-height: 45px;
+          display: none;
+        }
+        #census-variable {
+          width: 360px;
+          height: 20px;
+        }
+        #legend { display: flex; display: -webkit-box; padding-top: 7px }
+        .color-key {
+          background: linear-gradient(to right,
+            hsl(5, 69%, 54%) 0%,
+            hsl(29, 71%, 51%) 17%,
+            hsl(54, 74%, 47%) 33%,
+            hsl(78, 76%, 44%) 50%,
+            hsl(102, 78%, 41%) 67%,
+            hsl(127, 81%, 37%) 83%,
+            hsl(151, 83%, 34%) 100%);
+          flex: 1;
+          -webkit-box-flex: 1;
+          margin: 0 5px;
+          text-align: left;
+          font-size: 1.0em;
+          line-height: 1.0em;
+        }
+        #info-box {
         background-color: white;
         border: 1px solid black;
         bottom: 30px;
         height: 20px;
         padding: 10px;
         position: absolute;
-        left: 30px;
+        right: 30px;
       }
+        #statistics {
+        background-color: white;
+        border: 1px solid black;
+        bottom: 30px;
+        height: 200px;
+        width: 500px;
+        padding: 10px;
+        position: absolute;
+        left: 30px;
+        display: none;
+      }
+        #data-value { font-size: 2.0em; font-weight: bold }
+        #data-label { font-size: 2.0em; font-weight: normal; padding-right: 10px; }
+        #data-label:after { content: ':' }
+        #data-caret { margin-left: -5px; display: none; font-size: 14px; width: 14px}
     </style>
   </head>
   <body>
+    <div id="controls" class="nicebox">
+      <div>
+      <select id="census-variable">
+        <option value='{"url":"SA3_INCOME","key":"median_tot_prsnl_inc_weekly"}'>Personal weekly income</option>
+        <option value='{"url":"SA3_STAT","key":"median_tot_fam_inc_weekly"}'>Family weekly income</option>
+        <option value='{"url":"SA3_EDUCATION","key":"p_bade_bade_tot"}'>Bachelor degree</option>
+        <option value='{"url":"SA3_EDUCATION","key":"p_pode_masde_tot"}'>Post graduate degree</option>
+      </select>
+      </div>
+      <div id="legend">
+        <div id="census-min">min</div>
+        <div class="color-key"><span id="data-caret">&#x25c6;</span></div>
+        <div id="census-max">max</div>
+      </div>
+    </div>
+    <div id="data-box" class="nicebox">
+      <label id="data-label" for="data-value"></label>
+      <span id="data-value"></span>
+    </div>
     <div id="map"></div>
     <div id="info-box">?</div>
+    <div id="statistics">?</div>>
     <script>
-      
+      var mapStyle = [{
+        'stylers': [{'visibility': 'off'}]
+      }, {
+        'featureType': 'landscape',
+        'elementType': 'geometry',
+        'stylers': [{'visibility': 'on'}, {'color': '#fcfcfc'}]
+      }, {
+        'featureType': 'water',
+        'elementType': 'geometry',
+        'stylers': [{'visibility': 'on'}, {'color': '#bfd4ff'}]
+      }];
+      var map;
+      var censusMin = Number.MAX_VALUE, censusMax = -Number.MAX_VALUE;
+      var selectBox;
+
       function initMap() {
-        var map = new google.maps.Map(document.getElementById('map'), {
-          zoom: 6,
-          center: {lat: -28.024, lng: 140.887}
+        map = new google.maps.Map(document.getElementById('map'), {
+          zoom: 10,
+          center: {lat: -37.773700, lng: 145.137978},
+          // styles: mapStyle
         });
-         
-        // map.data.loadGeoJson(
-            // 'https://storage.googleapis.com/mapsdevsite/json/google.json');
-        map.data.loadGeoJson('SA3_GEO.json');
-        map.data.setStyle(function(feature) {
-          var color = feature.getProperty('color');
-          return {
-            fillColor: color,
-            strokeWeight: 1
-          };
+
+         // set up the style rules and events for google.maps.Data
+        map.data.setStyle(styleFeature);
+        map.data.addListener('mouseover', mouseInToRegion);
+        map.data.addListener('mouseout', mouseOutOfRegion);
+        map.data.addListener('click', mouseClickRegion)
+
+        // wire up the button
+        selectBox = document.getElementById('census-variable');
+        google.maps.event.addDomListener(selectBox, 'change', function() {
+          clearCensusData();
+          loadCensusData(selectBox.options[selectBox.selectedIndex].value);
         });
-        map.data.addListener('mouseover', function(event) {
-          var text = event.feature.getProperty('GCC')
-          document.getElementById('info-box').textContent =
-              event.feature.getProperty('GCC_NAME16');
-        });
-        var labels = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-        var markers = locations.map(function(location, i) {
-          return new google.maps.Marker({
-            position: location,
-            label: labels[i % labels.length]
-          });
-        });
-        var markerCluster = new MarkerClusterer(map, markers,
-            {imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m'});
+
+         // state polygons only need to be loaded once, do them now
+        loadMapShapes();
       }
-      var locations = [
-        {lat: -31.563910, lng: 147.154312},
-        {lat: -33.718234, lng: 150.363181},
-        {lat: -33.727111, lng: 150.371124},
-        {lat: -33.848588, lng: 151.209834},
-        {lat: -33.851702, lng: 151.216968},
-        {lat: -34.671264, lng: 150.863657},
-        {lat: -35.304724, lng: 148.662905},
-        {lat: -36.817685, lng: 175.699196},
-        {lat: -36.828611, lng: 175.790222},
-        {lat: -37.750000, lng: 145.116667},
-        {lat: -37.759859, lng: 145.128708},
-        {lat: -37.765015, lng: 145.133858},
-        {lat: -37.770104, lng: 145.143299},
-        {lat: -37.773700, lng: 145.145187},
-        {lat: -37.774785, lng: 145.137978},
-        {lat: -37.819616, lng: 144.968119},
-        {lat: -38.330766, lng: 144.695692},
-        {lat: -39.927193, lng: 175.053218},
-        {lat: -41.330162, lng: 174.865694},
-        {lat: -42.734358, lng: 147.439506},
-        {lat: -42.734358, lng: 147.501315},
-        {lat: -42.735258, lng: 147.438000},
-        {lat: -43.999792, lng: 170.463352}
-      ]
+      /**
+       * Applies a gradient style based on the 'census_variable' column.
+       * This is the callback passed to data.setStyle() and is called for each row in
+       * the data set.  Check out the docs for Data.StylingFunction.
+       *
+       * @param {google.maps.Data.Feature} feature
+       */
+      function styleFeature(feature) {
+        var low = [5, 69, 54];  // color of smallest datum
+        var high = [151, 83, 34];   // color of largest datum
+        
+        // delta represents where the value sits between the min and max
+        var delta = (feature.getProperty('census_variable') - censusMin) /
+            (censusMax - censusMin);
+        
+        var color = [];
+        for (var i = 0; i < 3; i++) {
+          // calculate an integer color based on the delta
+          color[i] = (high[i] - low[i]) * delta + low[i];
+        }
+
+        // determine whether to show this shape or not
+        var showRow = true;
+        if (feature.getProperty('census_variable') == null ||
+            isNaN(feature.getProperty('census_variable'))) {
+          showRow = false;
+        }
+
+        var outlineWeight = 0.5, zIndex = 1;
+        if (feature.getProperty('state') === 'hover') {
+          outlineWeight = zIndex = 2;
+        }
+
+        return {
+          strokeWeight: outlineWeight,
+          strokeColor: '#fff',
+          zIndex: zIndex,
+          fillColor: 'hsl(' + color[0] + ',' + color[1] + '%,' + color[2] + '%)',
+          fillOpacity: 0.75,
+          visible: showRow
+        };
+      }
+
+      /**
+       * Responds to the mouse-in event on a map shape (state).
+       *
+       * @param {?google.maps.MouseEvent} e
+       */
+      function mouseInToRegion(e) {
+        // set the hover state so the setStyle function can change the border
+        e.feature.setProperty('state', 'hover');
+        var percent = (e.feature.getProperty('census_variable') - censusMin) /
+            (censusMax - censusMin) * 100;
+
+        // update the label
+        document.getElementById('data-label').textContent = 
+            e.feature.getProperty('SA3_NAME16');
+        document.getElementById('data-value').textContent = 
+            e.feature.getProperty('census_variable').toLocaleString();
+        document.getElementById('data-box').style.display = 'block';
+        document.getElementById('data-caret').style.display = 'block';
+        document.getElementById('data-caret').style.paddingLeft = percent + '%';
+      }
+
+      function mouseClickRegion(e){
+        var stat_title = selectBox.options[selectBox.selectedIndex].text;//e.feature.getProperty('census_variable');
+        var stat_value = e.feature.getProperty('census_variable');
+        var contentText = stat_title + ' : ' + stat_value
+        document.getElementById('statistics').textContent = contentText;
+        document.getElementById('statistics').style.display = 'block';
+      }
+
+      /**
+       * Responds to the mouse-out event on a map shape (state).
+       *
+       * @param {?google.maps.MouseEvent} e
+       */
+      function mouseOutOfRegion(e) {
+        // reset the hover state, returning the border to normal
+        e.feature.setProperty('state', 'normal');
+        document.getElementById('statistics').style.display = 'none';
+      }
+
+      /** Removes census data from each shape on the map and resets the UI. */
+      function clearCensusData() {
+        censusMin = Number.MAX_VALUE;
+        censusMax = -Number.MAX_VALUE;
+        map.data.forEach(function(row) {
+          row.setProperty('census_variable', undefined);
+        });
+        document.getElementById('data-box').style.display = 'none';
+        document.getElementById('data-caret').style.display = 'none';
+      }
+
+      /** Loads the state boundary polygons from a GeoJSON source. */
+      function loadMapShapes() {
+        // load US state outline polygons from a GeoJson file
+        map.data.loadGeoJson('SA3_GEO.json', { idPropertyName: 'STATE' });
+
+        // wait for the request to complete by listening for the first feature to be
+        // added
+        google.maps.event.addListenerOnce(map.data, 'addfeature', function() {
+          google.maps.event.trigger(document.getElementById('census-variable'),
+              'change');
+        });
+      }
+
+      /**
+       * Loads the census data from a simulated API call to the US Census API.
+       *
+       * @param {string} variable
+       */
+      function loadCensusData(variable) {
+        // load the requested variable from the census API (using local copies)
+        var src = JSON.parse(variable)
+        var url = src.url
+        var key = src.key
+        document.getElementById('info-box').textContent = url;
+        var xhr = new XMLHttpRequest();
+
+        xhr.open('GET', "http://115.146.85.216/" + url +".json");
+        xhr.onload = function() {
+
+          var censusData = JSON.parse(xhr.responseText);
+          var features = censusData.features
+          features.forEach(function(row) {
+            var properties = row.properties
+            var sa3_code = properties.sa3_code16
+            var censusVariable = properties[key];
+
+            // keep track of min and max values
+            
+
+            // update the existing row with the new data
+            map.data.forEach(function(feature){
+              var code = feature.getProperty('SA3_CODE16')
+              if(code == sa3_code){
+                feature.setProperty('census_variable', censusVariable);
+                if (censusVariable < censusMin) {
+                  censusMin = censusVariable;
+                }
+                if (censusVariable > censusMax) {
+                  censusMax = censusVariable;
+                }
+              }
+
+            });
+          });
+
+          // update and display the legend
+          document.getElementById('census-min').textContent =
+              censusMin.toLocaleString();
+          document.getElementById('census-max').textContent =
+              censusMax.toLocaleString();
+        };
+        xhr.send();
+      }
+
     </script>
     <script src="https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/markerclusterer.js">
     </script>
