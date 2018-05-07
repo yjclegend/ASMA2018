@@ -157,6 +157,7 @@ class TweetAnalyze(object):
         print(len(data))
         bak = open('bak.json', 'w')
         bak.write(json.dumps(data))
+        
         # part = self.partitionByCoor(data)
         # conclusions = dict()
         # for code, datalist in part:
