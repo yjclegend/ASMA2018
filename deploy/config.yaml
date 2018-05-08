@@ -3,39 +3,47 @@
 
   tasks:
 # node configurations
-#     - name: Copy members key to Authorized_keys
-#       copy: 
-#         src: authorized_keys
-#         dest: .ssh/authorized_keys
-#     - name: Create directory for database
-#       file:
-#         path: /home/ubuntu/database
-#         state: directory
-#     - name: fomat the volume
-#       filesystem:
-#         fstype: ext4
-#         dev: /dev/vdb
-#     - name: Mount volume to ~/database
-#       mount:
-#         path: /home/ubuntu/database
-#         src: /dev/vdb
-#         fstype: ext4
-#         state: mounted
+    # - name: Copy members key to Authorized_keys
+    #   copy: 
+    #     src: authorized_keys
+    #     dest: .ssh/authorized_keys
+    - name: Create directory for database
+      file:
+        path: /home/ubuntu/database
+        state: directory
+    # - name: fomat the volume
+    #   filesystem:
+    #     fstype: ext4
+    #     dev: /dev/vdb
+    # - name: Mount volume to ~/database
+    #   mount:
+    #     path: /home/ubuntu/database
+    #     src: /dev/vdb
+    #     fstype: ext4  
+    #     state: mounted
+#Couchdb configurations
+    - name: release lock
+      file:
+        state: absent
+        path: /var/lib/dpkg/lock
+    - name: prepare install CouchDB
+      lineinfile:                             
+        dest: /etc/apt/sources.list
+        line: deb http://apache.bintray.com/couchdb-deb xenial main
+        insertafter: EOF
 
-# #Couchdb configurations
-#     - name: prepare install CouchDB
-#       lineinfile:
-#         dest: /etc/apt/sources.list
-#         line: deb http://apache.bintray.com/couchdb-deb xenial main
-#         insertafter: EOF
-#     - name: install CouchDB
-#       environment: 
-#           DEBIAN_FRONTEND: noninteractive
-#       apt:
-#         name: couchdb
-#         update_cache: yes
-#         force: yes
-#         allow_unauthenticated: yes  
+    - name: install CouchDB
+      environment: 
+          DEBIAN_FRONTEND: noninteractive
+      apt:
+        name: couchdb
+        #update_cache: yes
+        force: yes
+        allow_unauthenticated: yes  
+    
+    - name: install pip3
+      apt: 
+        name: python3-pip
 #     - name: change CouchDB node name
 #       lineinfile:
 #         path: /opt/couchdb/etc/vm.args
@@ -77,9 +85,6 @@
 #       command: /etc/init.d/couchdb restart
 
 #harvester configurations
-      # - name: install pip3
-      #   apt: 
-      #     name: python3-pip
       # - name: install tweepy
       #   pip:
       #     name: tweepy
@@ -92,10 +97,10 @@
       #   copy:
       #     src: ../getTweet.py
       #     dest: /home/ubuntu/harvester
-      - name: put harvester config file to server
-        copy:
-          src: ../twitterKey_{{play_hosts.index(inventory_hostname)}}.py
-          dest: /home/ubuntu/harvester/twitterKey.py
+      # - name: put harvester config file to server
+      #   copy:
+      #     src: ../twitterKey_{{play_hosts.index(inventory_hostname)}}.py
+      #     dest: /home/ubuntu/harvester/twitterKey.py
       # - name: run harvester
       #   command: nohup python3 /home/ubuntu/harvester/getTweet.py &
 

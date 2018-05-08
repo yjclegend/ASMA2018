@@ -9,34 +9,48 @@ from ansible.parsing.dataloader import DataLoader
 from ansible.vars.manager import VariableManager
 from ansible.inventory.manager import InventoryManager
 from ansible.executor.playbook_executor import PlaybookExecutor
+import credential_demo as credential
 
 class Deployer(object):
 	"""docstring for deployer"""
 	def __init__(self, ):
 		super(Deployer, self).__init__()
-		self.initConnection()
 		self.instances = list()
 		self.volumes = list()			#volumes 
+		self.myKey = credential.key
+		self.mySecret = credential.secret
+		self.instSize = credential.size
+		self.privateKey = credential.privateKey
+		self.endpoint_url = 'https://nova.rc.nectar.org.au:8773/services/Cloud'
+		self.initConnection()
 
 
 	def initConnection(self):
-		self.client = boto3.client(service_name='ec2',
+		try:
+			self.client = boto3.client(service_name='ec2',
                     region_name='melbourne-qh2',
-                    endpoint_url='https://nova.rc.nectar.org.au:8773/services/Cloud',
-                    aws_access_key_id='d76c0dd861f346b0acb093220c421eb4',
-                    aws_secret_access_key='d4acf02f362341b2ad66a7fdc43c14c6')
-		self.ec2 = boto3.resource(service_name='ec2',
+                    endpoint_url=self.endpoint_url,
+                    aws_access_key_id=self.myKey,
+                    aws_secret_access_key=self.mySecret)
+			self.ec2 = boto3.resource(service_name='ec2',
                     region_name='melbourne-qh2',
-                    endpoint_url='https://nova.rc.nectar.org.au:8773/services/Cloud',
-                    aws_access_key_id='d76c0dd861f346b0acb093220c421eb4',
-                    aws_secret_access_key='d4acf02f362341b2ad66a7fdc43c14c6')
-
+                    endpoint_url=self.endpoint_url,
+                    aws_access_key_id=self.myKey,
+                    aws_secret_access_key=self.mySecret)
+		except Exception as e:
+			print(e.message)
+			exit()
 	def summaryCurrentStatus(self):
-		self.updateInstanceInfo()
-		self.updateVolumeInfo()
-
+		try:
+			self.updateInstanceInfo()
+			self.updateVolumeInfo()
+		except Exception as e:
+			print(e.message)
+			exit()
 	def updateHostIni(self):
 		host_file = open('hosts.ini','w')
+		host_file.write("[slave:vars]\n")
+		host_file.write("ansible_ssh_common_args='-o StrictHostKeyChecking=no'\n")
 		host_file.write("[master]\n")
 		#write master ip
 		host_file.write(self.instances[0]['ip'])
@@ -44,9 +58,10 @@ class Deployer(object):
 
 		#write slave ip
 		host_file.write("[slave]\n")
-		for i in range(1,4):
+		for i in range(len(self.instances)):
 			host_file.write(self.instances[i]['ip'])
 			host_file.write('\n')
+		host_file.close()
 
 
 	def updateVolumeInfo(self):
@@ -71,6 +86,7 @@ class Deployer(object):
 				self.instances.append(inst_info)
 		print(self.instances)
 
+	#add instances all at once, 
 	def addInstance(self):
 		try:
 			print("spawning instances")
@@ -81,7 +97,7 @@ class Deployer(object):
 	                    MinCount=1,
 	                    Placement={'AvailabilityZone': 'melbourne-qh2'},
 	                    SecurityGroups=['default','SSH'],
-	                    InstanceType='m2.medium'
+	                    InstanceType=self.instSize
 	                    )
 			for instance in instances:
 				print('New instance {} has been created'.format(instance.id))
@@ -101,13 +117,15 @@ class Deployer(object):
 			print(e)
 
 	def addVolume(self):
-		print("attach volumes")
+		print("creating volumes")
 		for instance in self.instances:
 			in_id = instance['id']
-			volume = self.createVolume()
-			print("attach volume " + volume.id + " to " + in_id)
-			self.attachVolume(volume.id, in_id)
-
+			try:
+				volume = self.createVolume()
+				print("attach volume " + volume.id + " to " + in_id)
+				self.attachVolume(volume.id, in_id)
+			except Exception as e:
+				print(e.message)
 	def createVolume(self):
 		volume = self.ec2.create_volume(
 			AvailabilityZone='melbourne-qh2',
@@ -170,7 +188,7 @@ class Deployer(object):
 						become=True,
 						become_method='sudo',
 						become_user='root', 
-						private_key_file='huozhua.key',
+						private_key_file=self.privateKey,
 						listhosts=False,
 						listtasks=False,
 						listtags=False,
@@ -179,10 +197,10 @@ class Deployer(object):
 						diff=False,
 						module_path='')
 		
-		inventory = InventoryManager(loader=loader, sources='hosts.ini')
+		inventory = InventoryManager(loader=loader, sources='hosts.ini',)
 		variable_manager = VariableManager(loader=loader, inventory=inventory)
 
-		playbook_path = 'apache.yaml'
+		playbook_path = 'config.yaml'
 
 
 		pbex = PlaybookExecutor(playbooks=[playbook_path],
@@ -192,14 +210,15 @@ class Deployer(object):
 								options=options,
 								passwords=dict())
 		result = pbex.run()
+		print(result)
 
 if __name__ == '__main__':
-	os.environ["ANSIBLE_HOST_KEY_CHECKING"] = 'False'
 	de = Deployer()
-	#de.summaryCurrentStatus()
+	de.summaryCurrentStatus()
 	# remove all instances and volumes
-	#de.terminateAll()
+	de.terminateAll()
 	# add new instances and attach volumes
-	#de.addInstance()
-	#de.addVolume()
+	de.addInstance()
+	de.addVolume()
+	time.sleep(30)
 	de.playbook()
