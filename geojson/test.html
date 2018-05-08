@@ -64,6 +64,7 @@
         right: 30px;
       }
         #statistics {
+        white-space: pre;
         background-color: white;
         border: 1px solid black;
         bottom: 30px;
@@ -118,6 +119,7 @@
       var map;
       var censusMin = Number.MAX_VALUE, censusMax = -Number.MAX_VALUE;
       var selectBox;
+      var conclustions;
 
       function initMap() {
         map = new google.maps.Map(document.getElementById('map'), {
@@ -138,7 +140,7 @@
           clearCensusData();
           loadCensusData(selectBox.options[selectBox.selectedIndex].value);
         });
-
+        loadConclusion();
          // state polygons only need to be loaded once, do them now
         loadMapShapes();
       }
@@ -209,7 +211,38 @@
       function mouseClickRegion(e){
         var stat_title = selectBox.options[selectBox.selectedIndex].text;//e.feature.getProperty('census_variable');
         var stat_value = e.feature.getProperty('census_variable');
-        var contentText = stat_title + ' : ' + stat_value
+        var contentText = stat_title + ' : ' + stat_value + "\r\n"; 
+        
+        var regionId = e.feature.getProperty('SA3_CODE16');
+        var regionCon = conclusions[regionId];
+        //positive tweets
+        var data = regionCon['pos_count'];//JSON.stringify(regionCon);
+        contentText = contentText + "positive tweets : " + data + '\r\n';
+
+        //negative tweets
+        data = regionCon['neg_count'];
+        contentText = contentText + "negative tweets : " + data + '\r\n';   
+        //positive ratio
+        data = regionCon['pos_rate'];
+        contentText = contentText + "positive ratio : " + data + '\r\n';  
+
+        data = regionCon['tweets_in_Area'];
+        contentText = contentText + "Total tweet count : " + data + '\r\n';
+
+
+        data = regionCon['tweets_belong_sports_count'];
+        contentText = contentText + "Tweets relating fitness : " + data + '\r\n';
+
+        data = regionCon['tweets_belong_entertainments_count'];
+        contentText = contentText + "Tweets relating entertainment : " + data + '\r\n';
+
+        data = regionCon['tweets_belong_food&drinks_count'];
+        contentText = contentText + "Tweets relating food&drink : " + data + '\r\n';
+
+
+
+
+
         document.getElementById('statistics').textContent = contentText;
         document.getElementById('statistics').style.display = 'block';
       }
@@ -249,6 +282,16 @@
         });
       }
 
+      function loadConclusion(){
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', "http://115.146.85.216/conclusions.json")
+        xhr.onload = function(){
+          conclusions = JSON.parse(xhr.responseText);
+          document.getElementById('info-box').textContent = "adsfasdf";
+        }
+        xhr.send();
+      }
+
       /**
        * Loads the census data from a simulated API call to the US Census API.
        *
@@ -259,7 +302,6 @@
         var src = JSON.parse(variable)
         var url = src.url
         var key = src.key
-        document.getElementById('info-box').textContent = url;
         var xhr = new XMLHttpRequest();
 
         xhr.open('GET', "http://115.146.85.216/" + url +".json");
