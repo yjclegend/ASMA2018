@@ -1,4 +1,6 @@
 # -*- coding: utf-8-*-
+#This document is used to fetch AURIN data with the username and password through url.
+
 from urllib import request
 import json
 
