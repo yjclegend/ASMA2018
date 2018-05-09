@@ -1,3 +1,5 @@
+#This document is use the data from AURIN, combine useful data as a dictionary \
+#transform it to the type of string and write it into a json file named "aurin-melb-out.json".
 import json
 
 class AurinData():
