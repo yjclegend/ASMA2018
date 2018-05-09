@@ -79,6 +79,31 @@
         #data-label { font-size: 2.0em; font-weight: normal; padding-right: 10px; }
         #data-label:after { content: ':' }
         #data-caret { margin-left: -5px; display: none; font-size: 14px; width: 14px}
+
+        .float-button {
+        /*position: fixed;*/
+        height: 20px;
+        width: 40px;
+        bottom: 680px;
+        right: 50px;
+        border: none;
+        color: black;
+        padding: 15px 32px;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 16px;
+        margin: 4px 2px;
+        cursor: pointer;
+        float:right;top;
+        position: absolute;
+        text-align: center; 
+        z-index: 5;
+        box-shadow: 0 4px 6px -4px #333;
+        background: rgb(255,255,255);
+        background: linear-gradient(to bottom,rgba(255,255,255,1) 0%,rgba(245,245,245,1) 100%);
+    
+        }
     </style>
   </head>
   <body>
@@ -101,6 +126,7 @@
       <label id="data-label" for="data-value"></label>
       <span id="data-value"></span>
     </div>
+    <div class="float-button"><a href="http://www.baidu.com" target="_blank">botton</div>
     <div id="map"></div>
     <div id="info-box">?</div>
     <div id="statistics">?</div>>
