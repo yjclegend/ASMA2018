@@ -5,24 +5,24 @@
 
   tasks:
 # node configurations
-    # - name: Copy members key to Authorized_keys
-    #   copy: 
-    #     src: authorized_keys
-    #     dest: .ssh/authorized_keys
+    - name: Copy members key to Authorized_keys
+      copy: 
+        src: authorized_keys
+        dest: .ssh/authorized_keys
     - name: Create directory for database
       file:
         path: /home/ubuntu/database
         state: directory
-    # - name: fomat the volume
-    #   filesystem:
-    #     fstype: ext4
-    #     dev: /dev/vdb
-    # - name: Mount volume to ~/database
-    #   mount:
-    #     path: /home/ubuntu/database
-    #     src: /dev/vdb
-    #     fstype: ext4  
-    #     state: mounted
+    - name: fomat the volume
+      filesystem:
+        fstype: ext4
+        dev: /dev/vdb
+    - name: Mount volume to ~/database
+      mount:
+        path: /home/ubuntu/database
+        src: /dev/vdb
+        fstype: ext4  
+        state: mounted
     - name: release lock
       file:
         state: absent
@@ -49,7 +49,7 @@
         name: tweepy
         executable: pip3
 
-#Couchdb configurations
+# #Couchdb configurations
 
     - name: change CouchDB node name
       lineinfile:
@@ -91,29 +91,13 @@
     - name: restart couchdb
       command: /etc/init.d/couchdb restart
 
-#harvester configurations
-      
-      # - name: make directory for harvester source code
-      #   file:
-      #     path: /home/ubuntu/harvester
-      #     state: directory
-      # - name: put harvester source code to server
-      #   copy:
-      #     src: ../getTweet.py
-      #     dest: /home/ubuntu/harvester
-      # - name: put harvester config file to server
-      #   copy:
-      #     src: ../twitterKey_{{play_hosts.index(inventory_hostname)}}.py
-      #     dest: /home/ubuntu/harvester/twitterKey.py
-      # - name: run harvester
-      #   command: nohup python3 /home/ubuntu/harvester/getTweet.py &
 
 
 - hosts: master
   sudo: yes
 
   tasks:
-    #cluster configuration
+    cluster configuration
     - name: enable_cluster for all nodes
       uri:
         url: http://127.0.0.1:5984/_cluster_setup
@@ -161,3 +145,65 @@
         password: admin
         force_basic_auth: yes
         status_code: 202
+    - name: create geo database
+      uri:
+        url: http://127.0.0.1:5984/geo
+        method: PUT
+        user: admin
+        password: admin
+        force_basic_auth: yes
+        status_code: 202
+    - name: create conclusion database
+      uri:
+        url: http://127.0.0.1:5984/conclusion
+        method: PUT
+        user: admin
+        password: admin
+        force_basic_auth: yes
+        status_code: 202
+# apache server configuration
+    - name: install apache
+      apt: 
+        name: apache2
+        force: yes
+    - name: create directory for web page
+      file:
+        path: /home/ubuntu/mysite
+        state: directory
+    - name: add directory to server
+      lineinfile:
+        path: /etc/apache2/apache2.conf
+        insertafter: <\/Directory>
+        line: "<Directory /home/ubuntu/mysite>\n\tOptions Indexes FollowSymLinks\n\tAllowOverride None\n\tRequire all granted\n</Directory>"
+    
+    - name: change service directory of current site
+      lineinfile:
+        path: /etc/apache2/sites-enabled/000-default.conf
+        regexp: 'DocumentRoot'
+        line: "\tDocumentRoot /home/ubuntu/mysite"
+    - name: restart apache2 server
+      command: service apache2 restart
+    - name: copy web page to master node
+      copy:
+        src: ../geojson/test.html
+        dest: /home/ubuntu/mysite/index.html    
+
+- hosts: all
+  sudo: yes
+  tasks:
+#harvester configurations
+      
+    - name: make directory for harvester source code
+      file:
+        path: /home/ubuntu/harvester
+        state: directory
+    - name: put harvester source code to server
+      copy:
+        src: ../getTweet.py
+        dest: /home/ubuntu/harvester
+    - name: put harvester config file to server
+      copy:
+        src: ../twitterKey_{{play_hosts.index(inventory_hostname)}}.py
+        dest: /home/ubuntu/harvester/twitterKey.py
+    - name: run harvester
+      shell: nohup python3 /home/ubuntu/harvester/test.py >/dev/null 2>&1 &
