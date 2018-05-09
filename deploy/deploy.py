@@ -58,7 +58,7 @@ class Deployer(object):
 
 		#write slave ip
 		host_file.write("[slave]\n")
-		for i in range(len(self.instances)):
+		for i in range(1,len(self.instances)):
 			host_file.write(self.instances[i]['ip'])
 			host_file.write('\n')
 		host_file.close()
