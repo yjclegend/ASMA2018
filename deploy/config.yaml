@@ -1,7 +1,7 @@
 - hosts: all
   sudo: yes
   vars: 
-    node_count: 2
+    node_count: 4
 
   tasks:
 # node configurations
@@ -13,16 +13,16 @@
       file:
         path: /home/ubuntu/database
         state: directory
-    # - name: fomat the volume
-    #   filesystem:
-    #     fstype: ext4
-    #     dev: /dev/vdb
-    # - name: Mount volume to ~/database
-    #   mount:
-    #     path: /home/ubuntu/database
-    #     src: /dev/vdb
-    #     fstype: ext4  
-    #     state: mounted
+    - name: fomat the volume
+      filesystem:
+        fstype: ext4
+        dev: /dev/vdb
+    - name: Mount volume to ~/database
+      mount:
+        path: /home/ubuntu/database
+        src: /dev/vdb
+        fstype: ext4  
+        state: mounted
     - name: release lock
       file:
         state: absent
@@ -84,7 +84,7 @@
       uri:
         url: http://127.0.0.1:5984/_cluster_setup
         method: POST
-        body: '{"action": "enable_cluster", "bind_address":"0.0.0.0", "username": "admin", "password":"admin", "node_count":"4"}'
+        body: '{"action": "enable_cluster", "bind_address":"0.0.0.0", "username": "admin", "password":"admin", "node_count":"4  "}'
         headers:
           Content-Type: "application/json"
         status_code: 201
