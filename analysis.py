@@ -1,3 +1,5 @@
+#This document is to get data from specific location,
+#do sentiment analysis and count the number of positive/nagative tweets
 import json
 from textblob import TextBlob
 from urllib import request
@@ -35,7 +37,7 @@ class Analysis():
         countJson = json.dumps(countDic)
         print('positive count:',self.posCount, 'negative count:',self.nagCount,'positive rate:', posPercent)
         return countJson
-    #get data form specific location
+    #get data from specific location
     def getData(self):
         password_mgr = request.HTTPPasswordMgrWithDefaultRealm()
         password_mgr.add_password(None, self.url, self.username, self.password)
