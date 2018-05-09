@@ -1,4 +1,11 @@
 # -*- coding: utf-8-*-
+#This document is used to load json files which contain the original data of the tweets, 
+#divide these tweets into corresponding suburbs, 
+#make sentiment analysis of the content that each tweet published on Twitter, 
+#count the number of tweet based on different kinds of keywords and 
+#get the total number of the tweets in each suburb.
+#As a result, it will produce a json file named 'conclusions' that includes all dealt data we need.
+
 from urllib import request
 import json
 from textblob import TextBlob
@@ -63,7 +70,9 @@ class TweetAnalyze(object):
         posPercent = posCount / (posCount + negCount)
         conclusion = {'pos_count': posCount,'neg_count': negCount,'pos_rate': posPercent}
         return conclusion
-
+    
+    #count the number of tweet based on different kinds of keywords and \
+    #get the total number of the tweets in each suburb.
     def countTweets(self,data, keywords):
         #print("keywords", keywords)
         tweetinKeywords={'sports': 0, 'entertainments': 0, 'food&drink': 0}
@@ -75,9 +84,9 @@ class TweetAnalyze(object):
                     if word in text.lower():
                         tweetinKeywords[kind] +=1
             tweetinArea +=1
-        result ={'tweets_belong_sports_count': tweetinKeywords['sports'],'tweets_belong_entertainments_count': \
-                 tweetinKeywords['entertainments'], 'tweets_belong_food&drinks_count': tweetinKeywords['food&drink'],\
-                 'tweets_in_Area': tweetinArea}
+        result ={'tweets_belong_sports_Percent': tweetinKeywords['sports']/tweetinArea,'tweets_belong_entertainments_Percent': \
+                 tweetinKeywords['entertainments']/tweetinArea, 'tweets_belong_food&drinks_Percent': tweetinKeywords['food&drink']/tweetinArea,\
+                'tweets_in_Area': tweetinArea}
         return result
             
         
@@ -186,10 +195,10 @@ class TweetAnalyze(object):
 if __name__ == '__main__':
     ta = TweetAnalyze()
     keywords = dict()
-    keywords={'sports':{'cycling','swimming','tennis','soccer','riding',\
-              'yoga','marathon','gymnastics','basketball','boxing'},'entertainments':\
-             {'wedding','shopping','party','birthday'},'food&drink':{'cake','bread','milk',\
-             'cocktail','coke','beer','juice'}}
+    keywords={'sports':{'sports','cycling','swimming','tennis','soccer','riding','footy','football','jogging','running','hiking','frisbee',\
+              'yoga','marathon','gymnastics','basketball','boxing','badminton','skiing','fitness'},'entertainments':\
+             {'entertainments','wedding','shopping','party','birthday','music','movie','the avenger','peter rabbit',\
+              'lsle of dogs'},'food&drink':{'barbecue','bbq','food','cake','bread','milk','cocktail','coke','alcohol','beer','wine','juice'}}
     ta.scenario2(keywords)
     
     
