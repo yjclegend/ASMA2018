@@ -41,7 +41,7 @@ class TweetAnalyze(object):
     def getData(self, url):
         print(url)
         req =  request.Request(url) 
-        resp = request.urlopen(req).read()
+        resp = request.urlopen(req).read().decode('utf-8')
         return self.getRows(resp)
 
     def getDataInCity(self, city):
