@@ -1,7 +1,7 @@
 - hosts: all
   sudo: yes
   vars: 
-    node_count: 2
+    node_count: 4
 
   tasks:
 # node configurations
@@ -44,6 +44,7 @@
     - name: install pip3
       apt: 
         name: python3-pip
+        force: yes
     - name: install tweepy
       pip:
         name: tweepy
@@ -83,7 +84,7 @@
       uri:
         url: http://127.0.0.1:5984/_cluster_setup
         method: POST
-        body: '{"action": "enable_cluster", "bind_address":"0.0.0.0", "username": "admin", "password":"admin", "node_count":"4"}'
+        body: '{"action": "enable_cluster", "bind_address":"0.0.0.0", "username": "admin", "password":"admin", "node_count":"4  "}'
         headers:
           Content-Type: "application/json"
         status_code: 201
@@ -97,7 +98,28 @@
   sudo: yes
 
   tasks:
-    cluster configuration
+    #cluster configuration
+    - name: pip install textblob
+      pip: 
+        name: textblob
+        executable: pip3
+    - name: pip install textblob
+      pip: 
+        name: shapely
+        executable: pip3
+    - name: make dir geojson
+      file:
+        path: /home/ubuntu/geojson
+        state: directory
+    - name: move data to server
+      copy:
+        src: ../geojson/SA3_GEO.json
+        dest: /home/ubuntu/geojson/SA3_GEO.json
+        directory_mode: yes
+    - name: move analyzer to server
+      copy:
+        src: ../tweetAnalyze.py
+        dest: /home/ubuntu/tweetAnalyze.py
     - name: enable_cluster for all nodes
       uri:
         url: http://127.0.0.1:5984/_cluster_setup
@@ -170,6 +192,12 @@
       file:
         path: /home/ubuntu/mysite
         state: directory
+    - name: copy website files to server
+      copy:
+        src: "{{ item }}"
+        dest: /home/ubuntu/mysite
+      with_fileglob:
+        - ../geojson/*
     - name: add directory to server
       lineinfile:
         path: /etc/apache2/apache2.conf
