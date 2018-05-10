@@ -1,3 +1,15 @@
+"""
+Author:
+    Team2
+Members:
+    Jiachuan Yu(867000), jiachuany
+    Mengyu Zhou(780956), mengyuz2
+    Chenxi Hou(811596), chou1
+    Surong Zhu(859160), surongz
+    Sicong Ma(884092), Sicongm
+
+"""
+
 #This document is use the data from AURIN, combine useful data as a dictionary \
 #transform it to the type of string and write it into a json file named "aurin-melb-out.json".
 import json

@@ -1,7 +1,17 @@
 #  COMP90024 Cloud & Cluster Computing
 #  Assignment 2
 #  This file is to grab tweets from Twitter
+"""
+Author:
+    Team2
+Members:
+    Jiachuan Yu(867000), jiachuany
+    Mengyu Zhou(780956), mengyuz2
+    Chenxi Hou(811596), chou1
+    Surong Zhu(859160), surongz
+    Sicong Ma(884092), Sicongm
 
+"""
 
 # -*- coding: utf-8-*-
 import tweepy

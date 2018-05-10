@@ -1,3 +1,16 @@
+"""
+Author:
+    Team2
+Members:
+    Jiachuan Yu(867000), jiachuany
+    Mengyu Zhou(780956), mengyuz2
+    Chenxi Hou(811596), chou1
+    Surong Zhu(859160), surongz
+    Sicong Ma(884092), Sicongm
+
+"""
+
+#create instances and call ansible plabook
 import os
 import time
 import boto3
