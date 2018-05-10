@@ -118,8 +118,13 @@
         directory_mode: yes
     - name: move analyzer to server
       copy:
-        src: ../tweetAnalyze.py
-        dest: /home/ubuntu/tweetAnalyze.py
+        src: ../geojson/tweetAnalyze.py
+        dest: /home/ubuntu/geojson/tweetAnalyze.py
+    - cron: schedule tweet analyzer
+        name: "tun tweet analyze"
+        special_time: hourly
+        job: "cd /home/ubuntu/geojson && python3 tweetAnalyze.py"
+        state: present
     - name: enable_cluster for all nodes
       uri:
         url: http://127.0.0.1:5984/_cluster_setup
